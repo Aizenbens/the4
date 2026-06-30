@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مستشار المصاريف المشترك والخاص</title>
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #111827 0%, #311042 100%);
+            --card-bg: rgba(31, 41, 55, 0.7);
+            --primary: #8b5cf6;
+            --primary-hover: #7c3aed;
+            --success: #10b981;
+            --danger: #ef4444;
+            --text-main: #f9fafb;
+            --text-muted: #9ca3af;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-gradient);
+            color: var(--text-main);
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-sizing: border-box;
+        }
+        .container {
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 24px;
+            width: 100%;
+            max-width: 550px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+        h2, h3 { text-align: center; margin-top: 0; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; color: var(--text-muted); font-size: 0.9rem; }
+        input {
+            width: 100%; padding: 12px; background: rgba(17, 24, 39, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px;
+            color: #fff; font-size: 1rem; box-sizing: border-box;
+        }
+        input:focus { outline: none; border-color: var(--primary); }
+        button {
+            width: 100%; padding: 12px; background: var(--primary); color: white;
+            border: none; border-radius: 12px; font-size: 1rem; font-weight: 600;
+            cursor: pointer; transition: all 0.2s; margin-top: 10px;
+        }
+        button:hover { background: var(--primary-hover); }
+        .hidden { display: none !important; }
+        .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 20px 0; }
+        .stat-card { background: rgba(17, 24, 39, 0.4); padding: 15px; border-radius: 16px; text-align: center; }
+        .stat-value { font-size: 1.4rem; font-weight: 700; }
+        .text-success { color: var(--success); }
+        .text-danger { color: var(--danger); }
+        .expense-list { list-style: none; padding: 0; max-height: 200px; overflow-y: auto; }
+        .expense-item {
+            background: rgba(255, 255, 255, 0.03); padding: 12px; margin-bottom: 8px;
+            border-radius: 12px; display: flex; justify-content: space-between; align-items: center;
+        }
+        .delete-btn { background: transparent; color: var(--danger); width: auto; padding: 4px 8px; border: 1px solid var(--danger); border-radius: 6px; }
+        .delete-btn:hover { background: var(--danger); color: white; }
+        .room-badge { background: #374151; padding: 8px; border-radius: 8px; font-size: 0.85rem; text-align: center; margin-bottom: 15px; border: 1px dashed var(--primary); }
+        .toggle-auth { text-align: center; margin-top: 15px; color: var(--primary); cursor: pointer; text-decoration: underline; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div id="auth-screen">
+        <h2 id="auth-title">تسجيل الدخول</h2>
+        <div class="form-group">
+            <label>اسم المستخدم</label>
+            <input type="text" id="username" placeholder="أدخل اسمك">
+        </div>
+        <div class="form-group">
+            <label>كلمة المرور</label>
+            <input type="password" id="password" placeholder="••••••••">
+        </div>
+        <button id="main-auth-btn">دخول</button>
+        <div class="toggle-auth" id="toggle-text">ليس لديك حساب؟ إنشاء حساب جديد</div>
+    </div>
+
+    <div id="main-screen" class="hidden">
+        <div class="room-badge" id="room-info">المساحة: العامة (يراها الجميع)</div>
+        <h2 style="font-size: 1.3rem;">مرحباً، <span id="user-display" style="color: var(--primary);"></span> 👋</h2>
+        
+        <div class="form-group">
+            <label>إجمالي الدخل المتاح</label>
+            <input type="number" id="income-input" placeholder="0">
+        </div>
+
+        <hr style="border-color: rgba(255,255,255,0.1)">
+
+        <h3>إضافة مصروف جديد</h3>
+        <div class="form-group" style="display: grid; grid-template-columns: 2fr 1fr; gap: 10px;">
+            <input type="text" id="item-name" placeholder="الصنف (تفاح...)">
+            <input type="number" id="item-cost" placeholder="المبلغ">
+        </div>
+        <button id="add-expense-btn">إضافة</button>
+
+        <div class="dashboard-grid">
+            <div class="stat-card">
+                <label>إجمالي المصاريف</label>
+                <div id="total-expenses" class="stat-value text-danger">0</div>
+            </div>
+            <div class="stat-card">
+                <label>المتبقي</label>
+                <div id="remaining-budget" class="stat-value text-success">0</div>
+            </div>
+        </div>
+
+        <h3>المصاريف والمشتريات الحية</h3>
+        <ul id="expenses-container" class="expense-list"></ul>
+
+        <button style="background: #4b5563;" id="create-room-btn">إنشاء مساحة خاصة بي ودعوة أصدقائي 🔗</button>
+        <button style="background: transparent; border: 1px solid rgba(255,255,255,0.2); margin-top: 10px;" id="logout-btn">تسجيل خروج</button>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-analytics.js";
+    import { getDatabase, ref, set, get, child, push, onValue, remove } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-database.js";
+
+    // إعدادات مشروعك الخاص من الصورة
+    const firebaseConfig = {
+        apiKey: "AIzaSyAa8MbBc8vzVXGhjl2pnhjbHAivcZqSx6M",
+        authDomain: "the-713f0.firebaseapp.com",
+        projectId: "the-713f0",
+        storageBucket: "the-713f0.firebasestorage.app",
+        messagingSenderId: "32243194262",
+        appId: "1:32243194262:web:26c80b32458034cb86e5b7",
+        measurementId: "G-JTC7GQ1L84",
+        databaseURL: "https://the-713f0-default-rtdb.firebaseio.com" // رابط قاعدة البيانات الافتراضي لمشروعك
+    };
+
+    // بدء تشغيل الحزمة
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+    const db = getDatabase(app);
+
+    let isLoginMode = true;
+    let currentRoom = "global";
+
+    // تتبع الروابط الخاصة
+    const urlParams = new URLSearchParams(window.location.search);
+    if(urlParams.has('room')) {
+        currentRoom = urlParams.get('room');
+    }
+
+    // ربط الأزرار بالأحداث البرمجية لتناسب نظام Module
+    document.getElementById('toggle-text').addEventListener('click', toggleAuthMode);
+    document.getElementById('main-auth-btn').addEventListener('click', handleAuth);
+    document.getElementById('income-input').addEventListener('change', updateIncome);
+    document.getElementById('add-expense-btn').addEventListener('click', addExpense);
+    document.getElementById('create-room-btn').addEventListener('click', createPrivateRoom);
+    document.getElementById('logout-btn').addEventListener('click', logout);
+
+    function toggleAuthMode() {
+        isLoginMode = !isLoginMode;
+        document.getElementById('auth-title').innerText = isLoginMode ? "تسجيل الدخول" : "إنشاء حساب جديد";
+        document.getElementById('main-auth-btn').innerText = isLoginMode ? "دخول" : "تسجيل وتفعيل الحساب";
+        document.getElementById('toggle-text').innerText = isLoginMode ? "ليس لديك حساب؟ إنشاء حساب جديد" : "لديك حساب بالفعل؟ سجل دخولك";
+    }
+
+    function handleAuth() {
+        const user = document.getElementById('username').value.trim().toLowerCase();
+        const pass = document.getElementById('password').value.trim();
+
+        if(!user || !pass) { alert('يرجى ملء الحقول مسبقاً'); return; }
+
+        const dbRef = ref(db);
+        
+        if(isLoginMode) {
+            get(child(dbRef, `users/${user}`)).then((snapshot) => {
+                if (snapshot.exists() && snapshot.val().password === pass) {
+                    loginSuccess(user);
+                } else {
+                    alert('خطأ: اسم المستخدم أو كلمة المرور غير صحيحة!');
+                }
+            }).catch((error) => alert("حدث خطأ في الاتصال: " + error));
+        } else {
+            get(child(dbRef, `users/${user}`)).then((snapshot) => {
+                if (snapshot.exists()) {
+                    alert('اسم المستخدم محجوز مسبقاً، اختر اسماً آخر!');
+                } else {
+                    set(ref(db, 'users/' + user), { password: pass }).then(() => {
+                        alert('تم إنشاء حسابك بنجاح! يمكنك الآن الدخول.');
+                        toggleAuthMode();
+                    });
+                }
+            });
+        }
+    }
+
+    function loginSuccess(user) {
+        document.getElementById('auth-screen').classList.add('hidden');
+        document.getElementById('main-screen').classList.remove('hidden');
+        document.getElementById('user-display').innerText = user;
+        
+        if(currentRoom !== "global") {
+            document.getElementById('room-info').innerText = "المساحة: غُرفة خاصة 🔒";
+        }
+        listenToData();
+    }
+
+    function listenToData() {
+        onValue(ref(db, 'rooms/' + currentRoom), (snapshot) => {
+            const data = snapshot.val() || { income: 0, expenses: {} };
+            document.getElementById('income-input').value = data.income || '';
+            
+            const container = document.getElementById('expenses
