@@ -215,4 +215,72 @@
             const data = snapshot.val() || { income: 0, expenses: {} };
             document.getElementById('income-input').value = data.income || '';
             
-            const container = document.getElementById('expenses
+            const container = document.getElementById('expenses-container');
+            container.innerHTML = '';
+            let total = 0;
+
+            if(data.expenses) {
+                Object.keys(data.expenses).forEach(key => {
+                    const item = data.expenses[key];
+                    total += parseFloat(item.cost);
+
+                    const li = document.createElement('li');
+                    li.className = 'expense-item';
+                    li.innerHTML = `<span><b>${item.name}</b> (${item.cost})</span>`;
+                    
+                    const delBtn = document.createElement('button');
+                    delBtn.className = 'delete-btn';
+                    delBtn.innerText = 'حذف';
+                    delBtn.addEventListener('click', () => deleteExpense(key));
+                    
+                    li.appendChild(delBtn);
+                    container.appendChild(li);
+                });
+            }
+
+            const remaining = (data.income || 0) - total;
+            document.getElementById('total-expenses').innerText = total;
+            document.getElementById('remaining-budget').innerText = remaining;
+        });
+    }
+
+    function updateIncome() {
+        const inc = parseFloat(document.getElementById('income-input').value) || 0;
+        set(ref(db, 'rooms/' + currentRoom + '/income'), inc);
+    }
+
+    function addExpense() {
+        const name = document.getElementById('item-name').value.trim();
+        const cost = parseFloat(document.getElementById('item-cost').value) || 0;
+
+        if(!name || cost <= 0) return alert('أدخل بيانات صحيحة للسلعة');
+
+        const roomExpensesRef = ref(db, 'rooms/' + currentRoom + '/expenses');
+        const newExpenseRef = push(roomExpensesRef);
+        set(newExpenseRef, { name: name, cost: cost });
+
+        document.getElementById('item-name').value = '';
+        document.getElementById('item-cost').value = '';
+    }
+
+    function deleteExpense(key) {
+        remove(ref(db, 'rooms/' + currentRoom + '/expenses/' + key));
+    }
+
+    function createPrivateRoom() {
+        const uniqueRoomId = "room_" + Math.random().toString(36).substr(2, 9);
+        const privateUrl = window.location.origin + window.location.pathname + "?room=" + uniqueRoomId;
+        
+        set(ref(db, 'rooms/' + uniqueRoomId), { income: 0 }).then(() => {
+            navigator.clipboard.writeText(privateUrl);
+            alert("تم إنشاء غرفتك الخاصة ونسخ الرابط! أرسله لمن تريد الدخول معه:\n" + privateUrl);
+            window.location.href = privateUrl;
+        });
+    }
+
+    function logout() {
+        window.location.href = window.location.origin + window.location.pathname;
+    }
+</script>
+</body>
+</html>
