@@ -42,7 +42,7 @@
             max-width: 650px;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
         }
-        h2, h3 { text-align: center; margin-top: 0; }
+        h2, h3, h4 { text-align: center; margin-top: 0; }
         .form-group { margin-bottom: 15px; }
         label { display: block; margin-bottom: 5px; color: var(--text-muted); font-size: 0.9rem; }
         input {
@@ -51,6 +51,8 @@
             color: #fff; font-size: 1rem; box-sizing: border-box;
         }
         input:focus { outline: none; border-color: var(--primary); }
+        input:disabled { background: rgba(15, 23, 42, 0.3); color: var(--text-muted); cursor: not-allowed; }
+        
         button {
             width: 100%; padding: 12px; background: var(--primary); color: white;
             border: none; border-radius: 12px; font-size: 1rem; font-weight: 600;
@@ -83,6 +85,18 @@
         
         .room-badge { background: #1e293b; padding: 12px; border-radius: 12px; font-size: 0.9rem; text-align: center; margin-bottom: 20px; border: 1px dashed var(--primary); color: #fff;}
         .toggle-auth { text-align: center; margin-top: 15px; color: var(--primary); cursor: pointer; text-decoration: underline; font-size: 0.9rem; }
+        
+        /* تصميم النافذة المنبثقة للتفاصيل والأرشيف */
+        .modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(8px);
+            display: flex; justify-content: center; align-items: center; z-index: 1000;
+        }
+        .modal-content {
+            background: #1e293b; border: 1px solid rgba(255,255,255,0.1);
+            padding: 25px; border-radius: 20px; width: 90%; max-width: 500px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); max-height: 80vh; overflow-y: auto;
+        }
     </style>
 </head>
 <body>
@@ -114,9 +128,10 @@
         <h2 style="font-size: 1.3rem;">مرحباً، <span id="user-display" style="color: var(--primary);"></span> 👋</h2>
         
         <div class="section-card">
-            <div class="form-group">
-                <label>إجمالي الدخل المتاح ({ الدخل })</label>
-                <input type="number" id="income-input" placeholder="0" onchange="updateIncome()">
+            <label>إجمالي الدخل المتاح للغرفة</label>
+            <div class="form-group" style="display: grid; grid-template-columns: 2fr 1fr; gap: 10px; align-items: center;">
+                <input type="number" id="income-input" placeholder="0" disabled>
+                <button id="edit-income-btn" onclick="toggleIncomeEdit()" style="margin: 0; background: #4b5563;">تعديل الدخل</button>
             </div>
             <div class="dashboard-grid">
                 <div class="stat-card">
@@ -147,24 +162,46 @@
             </div>
             <button onclick="addRequest()" style="background: #a855f7;">إرسال طلب</button>
             
-            <h4 style="margin: 15px 0 5px 0; color: var(--warning);">طلبات في انتظار الموافقة وتحديد السعر:</h4>
+            <h4 style="margin: 15px 0 5px 0; color: var(--warning); text-align: right;">طلبات في انتظار الموافقة وتحديد السعر:</h4>
             <ul id="requests-container" class="item-list"></ul>
         </div>
 
         <div class="section-card">
-            <h3>المصاريف المعتمدة للشهر الحالي</h3>
+            <h3 style="text-align: right; font-size: 1.1rem; color: var(--success);">المصاريف المعتمدة للشهر الحالي</h3>
             <ul id="expenses-container" class="item-list"></ul>
             
-            <h4 style="margin: 20px 0 5px 0; color: var(--text-muted);">أرشيف الأشهر السابقة:</h4>
-            <ul id="archive-container" class="item-list" style="max-height: 100px;"></ul>
+            <h3 style="margin: 25px 0 10px 0; font-size: 1.1rem; color: var(--text-muted); text-align: right;">🗄️ السجلات والأشهر المؤرشفة السابقة</h3>
+            <ul id="archive-container" class="item-list" style="max-height: 220px;"></ul>
         </div>
 
         <button style="background: transparent; border: 1px solid rgba(255,255,255,0.2); margin-top: 10px;" onclick="logout()">تسجيل خروج</button>
     </div>
 </div>
 
+<div id="details-modal" class="modal hidden">
+    <div class="modal-content">
+        <h3 id="modal-month-title" style="color: var(--primary);">تفاصيل الشهر</h3>
+        <div class="dashboard-grid" style="margin-bottom: 15px;">
+            <div class="stat-card">
+                <label>الدخل المؤرشف</label>
+                <div id="modal-income" class="stat-value" style="color:#fff;">0</div>
+            </div>
+            <div class="stat-card">
+                <label>المصاريف</label>
+                <div id="modal-expenses" class="stat-value text-danger">0</div>
+            </div>
+        </div>
+        <div class="stat-card" style="margin-bottom: 20px;">
+            <label>الموفر / المتبقي</label>
+            <div id="modal-remaining" class="stat-value text-success">0</div>
+        </div>
+        <h4 style="text-align: right; color: var(--text-muted); font-size: 0.95rem;">قائمة المشتريات والمصاريف بالتفصيل (مغلقة):</h4>
+        <ul id="modal-items-list" class="item-list" style="max-height: 200px;"></ul>
+        <button onclick="closeModal()" style="background: #4b5563; margin-top: 15px;">إغلاق التفاصيل</button>
+    </div>
+</div>
+
 <script>
-    // إعدادات Firebase الخاصة بمشروعك الحقيقي
     const firebaseConfig = {
         apiKey: "AIzaSyAa8MbBc8vzVXGhjl2pnhjbHAivcZqSx6M",
         authDomain: "the-713f0.firebaseapp.com",
@@ -176,18 +213,16 @@
         databaseURL: "https://the-713f0-default-rtdb.firebaseio.com"
     };
 
-    // تشغيل الفايربيس
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
     let isLoginMode = true;
     let currentRoom = null;
+    let globalRoomData = {}; // لتخزين بيانات الأرشيف للوصول السريع
 
-    // فحص الرابط والتأكد من جلسة المستخدم التلقائية
     const urlParams = new URLSearchParams(window.location.search);
     if(urlParams.has('room')) {
         currentRoom = urlParams.get('room');
-        
         const savedUser = localStorage.getItem(`active_user_${currentRoom}`);
         if (savedUser) {
             loginSuccess(savedUser);
@@ -216,9 +251,7 @@
     function handleAuth() {
         const user = document.getElementById('username').value.trim().toLowerCase();
         const pass = document.getElementById('password').value.trim();
-
         if(!user || !pass) { alert('يرجى ملء الحقول'); return; }
-
         const userRef = db.ref(`rooms/${currentRoom}/users/${user}`);
         
         if(isLoginMode) {
@@ -251,12 +284,35 @@
         listenToData();
     }
 
+    // خاصية قفل وتعديل الدخل الذكية
+    function toggleIncomeEdit() {
+        const incomeInput = document.getElementById('income-input');
+        const editBtn = document.getElementById('edit-income-btn');
+        
+        if(incomeInput.disabled) {
+            incomeInput.disabled = false;
+            incomeInput.focus();
+            editBtn.innerText = "حفظ القيمة";
+            editBtn.style.background = "var(--success)";
+        } else {
+            incomeInput.disabled = true;
+            editBtn.innerText = "تعديل الدخل";
+            editBtn.style.background = "#4b5563";
+            const inc = parseFloat(incomeInput.value) || 0;
+            db.ref(`rooms/${currentRoom}/income`).set(inc);
+        }
+    }
+
     function listenToData() {
         db.ref('rooms/' + currentRoom).on('value', (snapshot) => {
             const data = snapshot.val() || {};
-            document.getElementById('income-input').value = data.income || '';
+            globalRoomData = data; // حفظ نسخة مؤقتة لقراءة الأرشيف لاحقاً
             
-            // 1. عرض المصاريف المعتمدة
+            if(document.getElementById('income-input').disabled) {
+                document.getElementById('income-input').value = data.income || '';
+            }
+            
+            // 1. عرض المصاريف المعتمدة للشهر الحالي
             const expenseContainer = document.getElementById('expenses-container');
             expenseContainer.innerHTML = '';
             let total = 0;
@@ -315,7 +371,7 @@
                 });
             }
 
-            // 3. عرض الأرشيف
+            // 3. عرض الأرشيف مع خاصية عرض المزيد والتفاصيل
             const archiveContainer = document.getElementById('archive-container');
             archiveContainer.innerHTML = '';
             if(data.archive) {
@@ -324,16 +380,21 @@
                     const li = document.createElement('li');
                     li.className = 'item-box';
                     li.style.borderLeftColor = 'var(--text-muted)';
-                    li.innerHTML = `<span>📅 شهر: ${monthKey}</span> <span>إجمالي المصاريف المؤرشفة: <b>${archiveData.totalExpenses}</b></span>`;
+                    li.innerHTML = `<span>📅 ${monthKey}</span>`;
+                    
+                    const viewBtn = document.createElement('button');
+                    viewBtn.className = 'action-btn';
+                    viewBtn.style.background = "var(--primary)";
+                    viewBtn.innerText = 'عرض التفاصيل والسلع';
+                    viewBtn.onclick = () => showMonthDetails(monthKey);
+                    
+                    li.appendChild(viewBtn);
                     archiveContainer.appendChild(li);
                 });
+            } else {
+                archiveContainer.innerHTML = '<li style="text-align:center; color:var(--text-muted); font-size:0.9rem; list-style:none;">لا توجد أشهر مؤرشفة بعد.</li>';
             }
         });
-    }
-
-    function updateIncome() {
-        const inc = parseFloat(document.getElementById('income-input').value) || 0;
-        db.ref(`rooms/${currentRoom}/income`).set(inc);
     }
 
     function addExpense() {
@@ -355,11 +416,9 @@
     }
 
     function approveRequest(key, name) {
-        // يسأل الشخص الذي يوافق عن السعر النهائي للسلعة قبل ترحيلها للمصاريف
         const finalCostInput = prompt(`كم السعر النهائي والمبلغ المعتمد لـ (${name})؟`);
         const cost = parseFloat(finalCostInput);
-
-        if (finalCostInput === null) return; // عند إلغاء العملية
+        if (finalCostInput === null) return;
         if (isNaN(cost) || cost <= 0) return alert('يرجى إدخال سعر صحيح للموافقة!');
 
         db.ref(`rooms/${currentRoom}/expenses`).push({ name: name, cost: cost }).then(() => {
@@ -367,16 +426,51 @@
         });
     }
 
+    // خاصية فتح تفاصيل الشهر المؤرشف (عرض مغلق بالكامل)
+    function showMonthDetails(monthKey) {
+        const archiveData = globalRoomData.archive[monthKey];
+        if(!archiveData) return;
+
+        document.getElementById('modal-month-title').innerText = `سجل شهر: ${monthKey}`;
+        document.getElementById('modal-income').innerText = archiveData.income || 0;
+        document.getElementById('modal-expenses').innerText = archiveData.totalExpenses || 0;
+        document.getElementById('modal-remaining').innerText = (archiveData.income || 0) - (archiveData.totalExpenses || 0);
+
+        const listContainer = document.getElementById('modal-items-list');
+        listContainer.innerHTML = '';
+
+        if(archiveData.expensesList) {
+            Object.keys(archiveData.expensesList).forEach(k => {
+                const item = archiveData.expensesList[k];
+                const li = document.createElement('li');
+                li.className = 'item-box';
+                li.style.borderLeftColor = 'var(--text-muted)';
+                li.innerHTML = `<span><b>${item.name}</b></span> <span>المبلغ: ${item.cost}</span>`;
+                listContainer.appendChild(li);
+            });
+        } else {
+            listContainer.innerHTML = '<li>لم يتم تسجيل أي سلع في هذا الشهر.</li>';
+        }
+
+        document.getElementById('details-modal').classList.remove('hidden');
+    }
+
+    function closeModal() {
+        document.getElementById('details-modal').classList.add('hidden');
+    }
+
     function startNewMonth() {
         if(!confirm("هل أنت متأكد من بدء شهر جديد؟ سيتم ترحيل وحفظ جميع مصاريفك الحالية في الأرشيف وتصفير القائمة الحالية.")) return;
 
         const totalExpenses = parseFloat(document.getElementById('total-expenses').innerText) || 0;
+        const currentIncome = parseFloat(document.getElementById('income-input').value) || 0;
         
         db.ref(`rooms/${currentRoom}/expenses`).once('value', (snapshot) => {
             const currentExpenses = snapshot.val() || {};
             const dateStr = new Date().toLocaleDateString('ar-EG', { year: 'numeric', month: 'long' });
 
             db.ref(`rooms/${currentRoom}/archive/${dateStr}`).set({
+                income: currentIncome,
                 expensesList: currentExpenses,
                 totalExpenses: totalExpenses
             }).then(() => {
