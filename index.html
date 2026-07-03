@@ -142,13 +142,12 @@
 
         <div class="section-card">
             <h3>إرسال طلب شراء للموافقة 🔔</h3>
-            <div class="form-group" style="display: grid; grid-template-columns: 2fr 1fr; gap: 10px;">
-                <input type="text" id="req-name" placeholder="اسم السلعة المطلوبة">
-                <input type="number" id="req-cost" placeholder="المبلغ المتوقع">
+            <div class="form-group">
+                <input type="text" id="req-name" placeholder="ما هي السلعة المطلوبة؟ (السعر غير إجباري هنا)">
             </div>
             <button onclick="addRequest()" style="background: #a855f7;">إرسال طلب</button>
             
-            <h4 style="margin: 15px 0 5px 0; color: var(--warning);">طلبات في انتظار الموافقة:</h4>
+            <h4 style="margin: 15px 0 5px 0; color: var(--warning);">طلبات في انتظار الموافقة وتحديد السعر:</h4>
             <ul id="requests-container" class="item-list"></ul>
         </div>
 
@@ -294,15 +293,15 @@
                     const li = document.createElement('li');
                     li.className = 'item-box';
                     li.style.borderLeftColor = 'var(--warning)';
-                    li.innerHTML = `<span><b>${item.name}</b> (${item.cost})</span>`;
+                    li.innerHTML = `<span><b>${item.name}</b> <span style="color:var(--text-muted); font-size:0.85rem;">(طلب معلق)</span></span>`;
                     
                     const actionsDiv = document.createElement('div');
                     actionsDiv.className = 'item-actions';
 
                     const approveBtn = document.createElement('button');
                     approveBtn.className = 'action-btn btn-success';
-                    approveBtn.innerText = 'موافقة';
-                    approveBtn.onclick = () => approveRequest(key, item.name, item.cost);
+                    approveBtn.innerText = 'موافقة وتسعير';
+                    approveBtn.onclick = () => approveRequest(key, item.name);
 
                     const rejectBtn = document.createElement('button');
                     rejectBtn.className = 'action-btn btn-danger';
@@ -349,15 +348,20 @@
 
     function addRequest() {
         const name = document.getElementById('req-name').value.trim();
-        const cost = parseFloat(document.getElementById('req-cost').value) || 0;
-        if(!name || cost <= 0) return alert('أدخل بيانات طلب صحيحة');
+        if(!name) return alert('يرجى كتابة السلعة المطلوبة أولاً');
 
-        db.ref(`rooms/${currentRoom}/requests`).push({ name: name, cost: cost });
+        db.ref(`rooms/${currentRoom}/requests`).push({ name: name });
         document.getElementById('req-name').value = '';
-        document.getElementById('req-cost').value = '';
     }
 
-    function approveRequest(key, name, cost) {
+    function approveRequest(key, name) {
+        // يسأل الشخص الذي يوافق عن السعر النهائي للسلعة قبل ترحيلها للمصاريف
+        const finalCostInput = prompt(`كم السعر النهائي والمبلغ المعتمد لـ (${name})؟`);
+        const cost = parseFloat(finalCostInput);
+
+        if (finalCostInput === null) return; // عند إلغاء العملية
+        if (isNaN(cost) || cost <= 0) return alert('يرجى إدخال سعر صحيح للموافقة!');
+
         db.ref(`rooms/${currentRoom}/expenses`).push({ name: name, cost: cost }).then(() => {
             db.ref(`rooms/${currentRoom}/requests/${key}`).remove();
         });
