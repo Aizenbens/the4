@@ -56,7 +56,7 @@
 
         h2, h3 { text-align: center; margin-bottom: 20px; color: var(--primary); }
 
-        .form-group { margin-bottom: 15px; }
+        .form-group { margin-bottom: 12px; }
         .form-group label { display: block; margin-bottom: 6px; font-weight: 500; font-size: 0.9rem; }
         .form-group input, .form-group select {
             width: 100%;
@@ -91,15 +91,39 @@
             padding: 12px;
             border-radius: 8px;
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             font-size: 0.85rem;
+        }
+
+        .income-box {
+            background: rgba(16, 185, 129, 0.08);
+            border: 1px solid var(--success);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .progress-bar-container {
+            background: var(--border);
+            border-radius: 10px;
+            height: 10px;
+            width: 100%;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+
+        .progress-fill {
+            background: var(--danger);
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s;
         }
 
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 10px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         .stat-card {
@@ -121,7 +145,7 @@
 
         .section-title {
             font-size: 0.95rem;
-            margin: 20px 0 10px 0;
+            margin: 18px 0 10px 0;
             padding-bottom: 5px;
             border-bottom: 2px solid var(--primary);
             display: flex;
@@ -130,7 +154,7 @@
         }
 
         .items-list {
-            max-height: 220px;
+            max-height: 200px;
             overflow-y: auto;
             margin-top: 10px;
         }
@@ -143,11 +167,9 @@
             background: rgba(0,0,0,0.02);
             border-radius: 8px;
             margin-bottom: 8px;
-            border-right: 4px solid var(--border);
+            border-right: 4px solid var(--danger);
         }
 
-        .item-row.income-border { border-right-color: var(--success); }
-        .item-row.expense-border { border-right-color: var(--danger); }
         .item-row.pending-border { border-right-color: var(--warning); }
 
         .item-info { display: flex; flex-direction: column; }
@@ -188,7 +210,7 @@
 
     <div id="dashboardCard" class="container hidden">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-            <span style="font-weight:bold;">مدير المصاريف</span>
+            <span style="font-weight:bold;">مدير المصاريف الذكي</span>
             <div>
                 <button id="themeToggleBtn" class="btn-secondary" style="width:auto; padding:5px 10px; font-size:0.8rem;">🌙</button>
                 <button id="logoutBtn" class="btn-danger" style="width:auto; padding:5px 10px; font-size:0.8rem;">خروج</button>
@@ -200,9 +222,17 @@
             <button id="copyLinkBtn" class="btn-warning" style="margin-top:8px; padding:4px 8px; font-size:0.8rem; width:auto;">📋 نسخ رابط الغرفة المباشر</button>
         </div>
 
+        <div class="income-box">
+            <label style="font-size:0.85rem; font-weight:bold; color:var(--success);">💰 تحديد/تعديل الميزانية الإجمالية للشهر</label>
+            <form id="incomeForm" style="display:flex; gap:8px; margin-top:6px;">
+                <input type="number" id="incomeInput" step="0.01" placeholder="أدخل قيمة الدخل/الميزانية" required style="padding:8px; border:1px solid var(--border); border-radius:6px; width:100%;">
+                <button type="submit" class="btn-success" style="width:auto; padding:8px 15px; font-size:0.85rem; white-space:nowrap;">حفظ الميزانية</button>
+            </form>
+        </div>
+
         <div class="stats-grid">
             <div class="stat-card">
-                <h4>الدخل</h4>
+                <h4>الميزانية الكلية</h4>
                 <p class="stat-income" id="totalIncome">0</p>
             </div>
             <div class="stat-card">
@@ -215,37 +245,41 @@
             </div>
         </div>
 
-        <form id="transactionForm">
+        <div style="margin-bottom: 15px;">
+            <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--text-muted);">
+                <span>نسبة استهلاك الميزانية:</span>
+                <span id="progressText">0%</span>
+            </div>
+            <div class="progress-bar-container">
+                <div class="progress-fill" id="progressBar"></div>
+            </div>
+        </div>
+
+        <h3 class="section-title">إضافة مصروف جديد</h3>
+        <form id="expenseForm">
             <div class="row">
                 <div class="form-group">
-                    <label>البيان / الوصف</label>
-                    <input type="text" id="transName" required placeholder="مثال: بقالة، راتب">
+                    <label>اسم المصروف / الشراء</label>
+                    <input type="text" id="expenseName" required placeholder="مثال: بقالة، فواتير">
                 </div>
                 <div class="form-group">
-                    <label>المبلغ</label>
-                    <input type="number" id="transAmount" step="0.01" required placeholder="0.00">
+                    <label>المبلغ (ر.س)</label>
+                    <input type="number" id="expenseAmount" step="0.01" required placeholder="0.00">
                 </div>
             </div>
-            <div class="form-group">
-                <label>النوع</label>
-                <select id="transType">
-                    <option value="expense">مصروف (-)</option>
-                    <option value="income">دخل (+)</option>
-                </select>
-            </div>
-            <button type="submit">إضافة المعاملة</button>
+            <button type="submit">إضافة إلى المصاريف</button>
         </form>
 
-        <h3 class="section-title">طلب شراء جديد</h3>
+        <h3 class="section-title">طلب شراء جديد (بدون سعر)</h3>
         <form id="purchaseRequestForm" class="row">
-            <input type="text" id="reqItemName" required placeholder="اسم الشيء المطلوب" style="padding:10px; border:1px solid var(--border); border-radius:8px;">
+            <input type="text" id="reqItemName" required placeholder="اسم الشيء المطلوب شراءه" style="padding:10px; border:1px solid var(--border); border-radius:8px;">
             <button type="submit" class="btn-warning">إرسال الطلب</button>
         </form>
         <div class="items-list" id="requestsList"></div>
 
         <div class="section-title">
-            <span>سجل الشهر الحالي</span>
-            <button id="archiveMonthBtn" class="btn-secondary" style="width:auto; padding:4px 8px; font-size:0.75rem;">📦 بدء شهر جديد وأرشفة الحالي</button>
+            <span>سجل مصاريف الشهر الحالي (<span id="itemCount">0</span>)</span>
+            <button id="archiveMonthBtn" class="btn-secondary" style="width:auto; padding:4px 8px; font-size:0.75rem;">📦 أرشفة وبدء شهر جديد</button>
         </div>
         <div class="items-list" id="transactionsList"></div>
 
@@ -280,7 +314,7 @@
             document.body.classList.toggle('dark-mode');
         });
 
-        // الدخول
+        // التسجيل والدخول
         document.getElementById('loginForm').addEventListener('submit', (e) => {
             e.preventDefault();
             const username = document.getElementById('username').value.trim();
@@ -315,18 +349,25 @@
             return new Date().toLocaleDateString('ar-SA', { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
         }
 
-        // إضافة معاملة
-        document.getElementById('transactionForm').addEventListener('submit', (e) => {
+        // حفظ الميزانية / الدخل الكلي
+        document.getElementById('incomeForm').addEventListener('submit', (e) => {
             e.preventDefault();
-            const name = document.getElementById('transName').value;
-            const amount = parseFloat(document.getElementById('transAmount').value);
-            const type = document.getElementById('transType').value;
+            const budgetVal = parseFloat(document.getElementById('incomeInput').value);
+            set(ref(db, `rooms/${currentRoomId}/budget`), budgetVal);
+            document.getElementById('incomeInput').value = '';
+        });
+
+        // إضافة مصروف
+        document.getElementById('expenseForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = document.getElementById('expenseName').value;
+            const amount = parseFloat(document.getElementById('expenseAmount').value);
 
             push(ref(db, `rooms/${currentRoomId}/current_month`), {
-                name, amount, type, author: currentUser, date: getDateFormatted()
+                name, amount, author: currentUser, date: getDateFormatted()
             });
 
-            document.getElementById('transactionForm').reset();
+            document.getElementById('expenseForm').reset();
         });
 
         // طلب شراء
@@ -341,73 +382,83 @@
             document.getElementById('purchaseRequestForm').reset();
         });
 
-        // أرشفة الشهر الحالي وبدء شهر جديد
+        // أرشفة الشهر وبدء شهر جديد
         document.getElementById('archiveMonthBtn').addEventListener('click', () => {
-            const monthName = prompt("أدخل اسماً أو تاريخاً لهذا الشهر المُراد أرشوفته (مثال: شهر 7 - 2026):");
+            const monthName = prompt("أدخل اسماً لهذا الشهر المؤرشف (مثال: شهر 7):");
             if (!monthName) return;
 
-            onValue(ref(db, `rooms/${currentRoomId}/current_month`), (snapshot) => {
-                const data = snapshot.val();
-                if (!data) return alert("لا توجد بيانات في الشهر الحالي لأرشتفها!");
+            onValue(ref(db, `rooms/${currentRoomId}`), (snapshot) => {
+                const roomData = snapshot.val();
+                const expensesData = roomData ? roomData.current_month : null;
+                const budget = roomData ? (roomData.budget || 0) : 0;
 
-                let incomeSum = 0, expenseSum = 0;
-                Object.values(data).forEach(item => {
-                    if (item.type === 'income') incomeSum += item.amount;
-                    else expenseSum += item.amount;
-                });
+                let expenseSum = 0;
+                if (expensesData) {
+                    Object.values(expensesData).forEach(item => expenseSum += item.amount);
+                }
 
-                // حفظ الأرشيف
                 push(ref(db, `rooms/${currentRoomId}/archives`), {
                     monthName,
-                    incomeSum,
+                    incomeSum: budget,
                     expenseSum,
-                    netBalance: incomeSum - expenseSum,
-                    items: data,
+                    netBalance: budget - expenseSum,
+                    items: expensesData || {},
                     archivedAt: getDateFormatted()
                 }).then(() => {
-                    // مسح بيانات الشهر الحالي لبدء شهر جديد
                     set(ref(db, `rooms/${currentRoomId}/current_month`), null);
-                    alert("تمت أرشفة الشهر وبدء شهر جديد بنجاح!");
+                    alert("تمت أرشفة الشهر بنجاح!");
                 });
             }, { onlyOnce: true });
         });
 
-        // تحميل البيانات
+        // تحميل بيانات الغرفة
         function loadRoomData() {
-            // المعاملات الحالية
+            // جلب الميزانية المحددة
+            onValue(ref(db, `rooms/${currentRoomId}/budget`), (snapshot) => {
+                const budget = snapshot.val() || 0;
+                document.getElementById('totalIncome').innerText = budget.toFixed(2);
+                calculateTotals(budget);
+            });
+
+            // جلب سجل المصاريف
             onValue(ref(db, `rooms/${currentRoomId}/current_month`), (snapshot) => {
                 const data = snapshot.val();
                 const list = document.getElementById('transactionsList');
                 list.innerHTML = '';
-                let incomeSum = 0, expenseSum = 0;
+                let expenseSum = 0;
+                let count = 0;
 
                 if (data) {
                     Object.keys(data).forEach(key => {
                         const item = data[key];
-                        if (item.type === 'income') incomeSum += item.amount;
-                        else expenseSum += item.amount;
+                        expenseSum += item.amount;
+                        count++;
 
                         const row = document.createElement('div');
-                        row.className = `item-row ${item.type === 'income' ? 'income-border' : 'expense-border'}`;
+                        row.className = "item-row";
                         row.innerHTML = `
                             <div class="item-info">
                                 <span class="item-name">${item.name}</span>
                                 <span class="item-meta">${item.author} | 🗓️ ${item.date}</span>
                             </div>
                             <div>
-                                <span style="font-weight:bold; margin-left:8px;">${item.type === 'income' ? '+' : '-'}${item.amount.toFixed(2)}</span>
+                                <span style="font-weight:bold; margin-left:8px;">-${item.amount.toFixed(2)}</span>
                                 <button onclick="deleteItem('current_month', '${key}')" class="btn-danger" style="padding:2px 6px; font-size:0.75rem; width:auto;">X</button>
                             </div>
                         `;
                         list.appendChild(row);
                     });
                 }
-                document.getElementById('totalIncome').innerText = incomeSum.toFixed(2);
+                
+                document.getElementById('itemCount').innerText = count;
                 document.getElementById('totalExpenses').innerText = expenseSum.toFixed(2);
-                document.getElementById('netBalance').innerText = (incomeSum - expenseSum).toFixed(2);
+                
+                // إعادة احتساب الصافي بناءً على الدخل المسجل
+                const currentBudget = parseFloat(document.getElementById('totalIncome').innerText) || 0;
+                calculateTotals(currentBudget, expenseSum);
             });
 
-            // الطلبات المعلقة
+            // طلبات الشراء
             onValue(ref(db, `rooms/${currentRoomId}/requests`), (snapshot) => {
                 const data = snapshot.val();
                 const reqList = document.getElementById('requestsList');
@@ -433,7 +484,7 @@
                 }
             });
 
-            // سجل الأرشيف للأشهر السابقة
+            // سجل الأرشيف
             onValue(ref(db, `rooms/${currentRoomId}/archives`), (snapshot) => {
                 const data = snapshot.val();
                 const archivesList = document.getElementById('archivesList');
@@ -447,7 +498,7 @@
                         div.innerHTML = `
                             <div style="display:flex; justify-content:space-between; font-weight:bold; margin-bottom:5px;">
                                 <span>📅 ${arc.monthName}</span>
-                                <button onclick="toggleArchiveDetails('${key}')" class="btn-secondary" style="padding:2px 8px; font-size:0.75rem; width:auto;">👁️ رؤية مشتريات الشهر</button>
+                                <button onclick="toggleArchiveDetails('${key}')" class="btn-secondary" style="padding:2px 8px; font-size:0.75rem; width:auto;">👁️ عرض المشتريات</button>
                             </div>
                             <div style="font-size:0.8rem; color:var(--text-muted); display:flex; gap:10px;">
                                 <span>الميزانية: <strong style="color:var(--success)">${arc.incomeSum.toFixed(2)}</strong></span>
@@ -459,16 +510,17 @@
 
                         archivesList.appendChild(div);
 
-                        // تجهيز قائمة تفاصيل مشتريات هذا الشهر المؤرشف
                         const detailsDiv = div.querySelector(`#details-${key}`);
-                        Object.values(arc.items).forEach(item => {
-                            const itemRow = document.createElement('div');
-                            itemRow.style.fontSize = "0.8rem";
-                            itemRow.style.padding = "4px 0";
-                            itemRow.style.borderBottom = "1px solid var(--border)";
-                            itemRow.innerHTML = `• <strong>${item.name}</strong>: ${item.amount.toFixed(2)} ر.س (${item.author})`;
-                            detailsDiv.appendChild(itemRow);
-                        });
+                        if (arc.items) {
+                            Object.values(arc.items).forEach(item => {
+                                const itemRow = document.createElement('div');
+                                itemRow.style.fontSize = "0.8rem";
+                                itemRow.style.padding = "4px 0";
+                                itemRow.style.borderBottom = "1px solid var(--border)";
+                                itemRow.innerHTML = `• <strong>${item.name}</strong>: ${item.amount.toFixed(2)} ر.س (${item.author})`;
+                                detailsDiv.appendChild(itemRow);
+                            });
+                        }
                     });
                 } else {
                     archivesList.innerHTML = '<p style="text-align:center; color:var(--text-muted); font-size:0.85rem;">لا توجد أشهر مؤرشفة بعد.</p>';
@@ -476,16 +528,29 @@
             });
         }
 
+        function calculateTotals(budget, expenseSum = null) {
+            if (expenseSum === null) {
+                expenseSum = parseFloat(document.getElementById('totalExpenses').innerText) || 0;
+            }
+            const net = budget - expenseSum;
+            document.getElementById('netBalance').innerText = net.toFixed(2);
+
+            // تحديث نسبة الشريط Progress Bar
+            let percent = budget > 0 ? (expenseSum / budget) * 100 : 0;
+            percent = Math.min(percent, 100);
+            document.getElementById('progressBar').style.width = percent + '%';
+            document.getElementById('progressText').innerText = percent.toFixed(1) + '%';
+        }
+
         // الدوال العالمية
         window.deleteItem = (path, key) => remove(ref(db, `rooms/${currentRoomId}/${path}/${key}`));
 
         window.approveRequest = (key, itemName) => {
-            const price = prompt(`أدخل السعر المطلوب لشراء (${itemName}):`);
+            const price = prompt(`أدخل السعر لشراء (${itemName}):`);
             if (price && !isNaN(price)) {
                 push(ref(db, `rooms/${currentRoomId}/current_month`), {
                     name: `شراء طلب: ${itemName}`,
                     amount: parseFloat(price),
-                    type: "expense",
                     author: currentUser,
                     date: getDateFormatted()
                 });
