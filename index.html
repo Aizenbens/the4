@@ -3,18 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مُدير المصاريف الذكي</title>
+    <title>مُدير المصاريف الذكي المتكامل</title>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
             --primary: #4f46e5;
             --primary-hover: #4338ca;
             --success: #10b981;
+            --warning: #f59e0b;
             --danger: #ef4444;
             --background: #f3f4f6;
             --card-bg: #ffffff;
             --text-main: #1f2937;
             --text-muted: #6b7280;
+            --border-color: #e5e7eb;
+        }
+
+        body.dark-mode {
+            --background: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
         }
 
         * {
@@ -22,6 +33,7 @@
             margin: 0;
             padding: 0;
             font-family: 'Tajawal', sans-serif;
+            transition: background-color 0.3s, color 0.3s;
         }
 
         body {
@@ -40,56 +52,121 @@
             background: var(--card-bg);
             padding: 30px;
             border-radius: 16px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
         }
 
-        h2 {
-            text-align: center;
+        .dashboard {
+            max-width: 900px;
+        }
+
+        .header-dash {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 25px;
-            color: var(--primary);
+            flex-wrap: wrap;
+            gap: 10px;
         }
 
-        .form-group {
-            margin-bottom: 18px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            font-size: 0.95rem;
-        }
-
-        .form-group input, .form-group select {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #e5e7eb;
-            border-radius: 8px;
-            outline: none;
-            font-size: 1rem;
-            transition: border-color 0.2s;
-        }
-
-        .form-group input:focus, .form-group select:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        .header-controls {
+            display: flex;
+            gap: 10px;
         }
 
         button {
-            width: 100%;
-            padding: 12px;
+            padding: 10px 16px;
             background-color: var(--primary);
             color: white;
             border: none;
             border-radius: 8px;
-            font-size: 1rem;
+            font-size: 0.95rem;
             font-weight: bold;
             cursor: pointer;
-            transition: background 0.2s;
         }
 
-        button:hover {
-            background-color: var(--primary-hover);
+        button:hover { background-color: var(--primary-hover); }
+
+        .btn-secondary { background-color: #64748b; }
+        .btn-secondary:hover { background-color: #475569; }
+        .btn-danger { background-color: var(--danger); }
+        .btn-success { background-color: var(--success); }
+        .btn-warning { background-color: var(--warning); color: #000; }
+
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 6px; font-weight: 500; }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            background: var(--card-bg);
+            color: var(--text-main);
+            border-radius: 8px;
+            outline: none;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: rgba(0,0,0,0.02);
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+        }
+
+        .stat-card h4 { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 5px; }
+        .stat-card p { font-size: 1.2rem; font-weight: 700; }
+
+        .stat-income { color: var(--success); }
+        .stat-expense { color: var(--danger); }
+        .stat-balance { color: var(--primary); }
+
+        .section-title {
+            margin: 25px 0 15px 0;
+            padding-bottom: 5px;
+            border-bottom: 2px solid var(--primary);
+            font-size: 1.1rem;
+        }
+
+        .row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+
+        .items-list {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 15px;
+        }
+
+        .item-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: rgba(0,0,0,0.02);
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-right: 4px solid var(--border-color);
+        }
+
+        .item-row.income-border { border-right-color: var(--success); }
+        .item-row.expense-border { border-right-color: var(--danger); }
+        .item-row.pending-border { border-right-color: var(--warning); }
+
+        .item-info { display: flex; flex-direction: column; }
+        .item-name { font-weight: bold; }
+        .item-date { font-size: 0.75rem; color: var(--text-muted); }
+        .item-category { font-size: 0.8rem; color: var(--primary); }
+
+        .action-btns { display: flex; gap: 5px; }
+
+        .chart-container {
+            position: relative;
+            margin: 20px 0;
+            max-height: 250px;
         }
 
         .switch-link {
@@ -99,107 +176,14 @@
             color: var(--text-muted);
         }
 
-        .switch-link span {
-            color: var(--primary);
-            cursor: pointer;
-            font-weight: 500;
-        }
-
-        .dashboard {
-            max-width: 800px;
-        }
-
-        .header-dash {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-        }
-
-        .logout-btn {
-            width: auto;
-            padding: 6px 15px;
-            background-color: var(--danger);
-            font-size: 0.9rem;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-            margin-bottom: 30px;
-        }
-
-        .stat-card {
-            background: #f9fafb;
-            padding: 15px;
-            border-radius: 12px;
-            text-align: center;
-            border: 1px solid #f3f4f6;
-        }
-
-        .stat-card h4 {
-            font-size: 0.9rem;
-            color: var(--text-muted);
-            margin-bottom: 5px;
-        }
-
-        .stat-card p {
-            font-size: 1.25rem;
-            font-weight: 700;
-        }
-
-        .stat-income { color: var(--success); }
-        .stat-expense { color: var(--danger); }
-        .stat-balance { color: var(--primary); }
-
-        .row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-
-        .items-list {
-            margin-top: 25px;
-            max-height: 250px;
-            overflow-y: auto;
-        }
-
-        .item-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px;
-            background: #f9fafb;
-            border-radius: 8px;
-            margin-bottom: 10px;
-        }
-
-        .item-row.income-border { border-right: 4px solid var(--success); }
-        .item-row.expense-border { border-right: 4px solid var(--danger); }
-
-        .item-info { display: flex; flex-direction: column; }
-        .item-name { font-weight: bold; }
-        .item-cost { font-size: 0.9rem; color: var(--text-muted); }
-
-        .delete-btn {
-            background: none;
-            color: var(--danger);
-            border: none;
-            width: auto;
-            padding: 5px 10px;
-            cursor: pointer;
-            font-size: 0.9rem;
-        }
-
-        .delete-btn:hover { background: #fee2e2; border-radius: 4px; }
+        .switch-link span { color: var(--primary); cursor: pointer; }
         .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
     <div id="authCard" class="container">
-        <h2 id="authTitle">تسجيل الدخول</h2>
+        <h2 id="authTitle" style="text-align:center; margin-bottom:20px; color:var(--primary);">تسجيل الدخول</h2>
         <form id="authForm">
             <div class="form-group">
                 <label for="email">البريد الإلكتروني</label>
@@ -209,17 +193,21 @@
                 <label for="password">كلمة المرور</label>
                 <input type="password" id="password" required placeholder="••••••••">
             </div>
-            <button type="submit" id="authBtn">دخول</button>
+            <button type="submit" id="authBtn" style="width:100%">دخول</button>
         </form>
         <div class="switch-link">
-            <span id="switchAuth">ليس لديك حساب؟ سجل الآن</span>
+            <span id="switchAuth">ليس لديك حساب؟ سجل الآن</span><br><br>
+            <span id="resetPasswordBtn" style="font-size:0.8rem;">نسيت كلمة المرور؟</span>
         </div>
     </div>
 
     <div id="dashboardCard" class="container dashboard hidden">
         <div class="header-dash">
-            <h2>مُدير المصاريف الذكي</h2>
-            <button class="logout-btn" id="logoutBtn">خروج</button>
+            <h2>مُدير المصاريف والطلبات</h2>
+            <div class="header-controls">
+                <button id="themeToggleBtn" class="btn-secondary">🌙 الوضع الداكن</button>
+                <button id="logoutBtn" class="btn-danger">خروج</button>
+            </div>
         </div>
 
         <div class="stats-grid">
@@ -237,6 +225,11 @@
             </div>
         </div>
 
+        <div class="chart-container">
+            <canvas id="expenseChart"></canvas>
+        </div>
+
+        <h3 class="section-title">إضافة معاملة مالية جديدة</h3>
         <form id="transactionForm">
             <div class="row">
                 <div class="form-group">
@@ -248,16 +241,48 @@
                     <input type="number" id="transAmount" step="0.01" required placeholder="0.00">
                 </div>
             </div>
-            <div class="form-group">
-                <label for="transType">نوع المعاملة</label>
-                <select id="transType">
-                    <option value="income">دخل (+)</option>
-                    <option value="expense">مصروف (-)</option>
-                </select>
+            <div class="row">
+                <div class="form-group">
+                    <label for="transCategory">الفئة</label>
+                    <select id="transCategory">
+                        <option value="طعام">طعام وبقالة</option>
+                        <option value="فواتير">فواتير وخدمات</option>
+                        <option value="تسوق">تسوق شخصي</option>
+                        <option value="مواصلات">مواصلات</option>
+                        <option value="راتب/دخل">راتب / دخل</option>
+                        <option value="أخرى">أخرى</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="transType">النوع</label>
+                    <select id="transType">
+                        <option value="income">دخل (+)</option>
+                        <option value="expense">مصروف (-)</option>
+                    </select>
+                </div>
             </div>
-            <button type="submit">إضافة المعاملة</button>
+            <button type="submit" style="width: 100%;">إضافة المعاملة</button>
         </form>
 
+        <h3 class="section-title">طلب شراء منتج جديد (بدون تحديد سعر)</h3>
+        <form id="purchaseRequestForm">
+            <div class="row">
+                <div class="form-group">
+                    <label for="reqRequesterName">اسم الطالب</label>
+                    <input type="text" id="reqRequesterName" required placeholder="اسمك">
+                </div>
+                <div class="form-group">
+                    <label for="reqItemName">اسم المنتج / الطلب</label>
+                    <input type="text" id="reqItemName" required placeholder="مثال: شاحن جوال">
+                </div>
+            </div>
+            <button type="submit" class="btn-warning" style="width: 100%;">إرسال طلب الشراء</button>
+        </form>
+
+        <h3 class="section-title">طلبات الشراء بانتظار الموافقة والتمويل</h3>
+        <div class="items-list" id="requestsList"></div>
+
+        <h3 class="section-title">سجل المعاملات المعتمدة</h3>
         <div class="items-list" id="transactionsList"></div>
     </div>
 
@@ -268,6 +293,7 @@
             createUserWithEmailAndPassword, 
             signInWithEmailAndPassword, 
             signOut, 
+            sendPasswordResetEmail,
             onAuthStateChanged 
         } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { 
@@ -275,10 +301,11 @@
             ref, 
             push, 
             onValue, 
-            remove 
+            remove,
+            update 
         } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-        // إعدادات مشروعك في Firebase (معرّف مشروعك the-713f0)
+        // إعدادات مشروع Firebase الخاص بك
         const firebaseConfig = {
             databaseURL: "https://the-713f0-default-rtdb.firebaseio.com",
             projectId: "the-713f0"
@@ -288,10 +315,247 @@
         const auth = getAuth(app);
         const db = getDatabase(app);
 
-        let isLoginMode = true;
         let currentUser = null;
+        let isLoginMode = true;
+        let myChart = null;
 
-        // التبديل بين واجهة الدخول والتسجيل
+        // --- الوضع الداكن (Dark Mode) ---
+        const themeToggleBtn = document.getElementById('themeToggleBtn');
+        themeToggleBtn.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            themeToggleBtn.innerText = isDark ? "☀️ الوضع الفاتح" : "🌙 الوضع الداكن";
+        });
+
+        // --- التبديل بين الدخول والتسجيل ---
         document.getElementById('switchAuth').addEventListener('click', () => {
             isLoginMode = !isLoginMode;
-            document.getElementById('authTitle').innerText = is
+            document.getElementById('authTitle').innerText = isLoginMode ? "تسجيل الدخول" : "إنشاء حساب جديد";
+            document.getElementById('authBtn').innerText = isLoginMode ? "دخول" : "تسجيل جديد";
+            document.getElementById('switchAuth').innerText = isLoginMode ? "ليس لديك حساب؟ سجل الآن" : "لديك حساب بالفعل؟ دخول";
+        });
+
+        // --- نسيت كلمة المرور ---
+        document.getElementById('resetPasswordBtn').addEventListener('click', () => {
+            const email = document.getElementById('email').value;
+            if (!email) {
+                alert("يرجى إدخال البريد الإلكتروني أولاً في الحقل المخصص.");
+                return;
+            }
+            sendPasswordResetEmail(auth, email)
+                .then(() => alert("تم إرسال رابط إعادة ضبط كلمة المرور إلى بريدك الإلكتروني."))
+                .catch(err => alert("خطأ: " + err.message));
+        });
+
+        // --- المصادقة ---
+        document.getElementById('authForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            if (isLoginMode) {
+                signInWithEmailAndPassword(auth, email, password).catch(err => alert("خطأ: " + err.message));
+            } else {
+                createUserWithEmailAndPassword(auth, email, password).catch(err => alert("خطأ: " + err.message));
+            }
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', () => signOut(auth));
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                document.getElementById('authCard').classList.add('hidden');
+                document.getElementById('dashboardCard').classList.remove('hidden');
+                loadData(user.uid);
+            } else {
+                currentUser = null;
+                document.getElementById('dashboardCard').classList.add('hidden');
+                document.getElementById('authCard').classList.remove('hidden');
+            }
+        });
+
+        // --- دالة الحصول على اليوم والتاريخ بالحجم العربي ---
+        function getCurrentFormattedDate() {
+            const now = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+            return now.toLocaleDateString('ar-SA', options);
+        }
+
+        // --- إضافة معاملة مالية مباشرة ---
+        document.getElementById('transactionForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            if (!currentUser) return;
+
+            const name = document.getElementById('transName').value;
+            const amount = parseFloat(document.getElementById('transAmount').value);
+            const category = document.getElementById('transCategory').value;
+            const type = document.getElementById('transType').value;
+            const dateStr = getCurrentFormattedDate();
+
+            push(ref(db, `users/${currentUser.uid}/transactions`), {
+                name, amount, category, type, date: dateStr
+            });
+
+            document.getElementById('transactionForm').reset();
+        });
+
+        // --- 1. تقديم طلب شراء جديد ---
+        document.getElementById('purchaseRequestForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            if (!currentUser) return;
+
+            const requester = document.getElementById('reqRequesterName').value;
+            const itemName = document.getElementById('reqItemName').value;
+            const dateStr = getCurrentFormattedDate();
+
+            push(ref(db, `users/${currentUser.uid}/requests`), {
+                requester,
+                itemName,
+                status: "pending",
+                date: dateStr
+            });
+
+            document.getElementById('purchaseRequestForm').reset();
+        });
+
+        // --- تحميل البيانات وتحديث الواجهة والرسوم البيانية ---
+        function loadData(userId) {
+            // أ) جلب المعاملات المالية الرسمية
+            onValue(ref(db, `users/${userId}/transactions`), (snapshot) => {
+                const data = snapshot.val();
+                const list = document.getElementById('transactionsList');
+                list.innerHTML = '';
+
+                let incomeSum = 0;
+                let expenseSum = 0;
+                let categoryTotals = {};
+
+                if (data) {
+                    Object.keys(data).forEach(key => {
+                        const item = data[key];
+                        if (item.type === 'income') {
+                            incomeSum += item.amount;
+                        } else {
+                            expenseSum += item.amount;
+                            categoryTotals[item.category] = (categoryTotals[item.category] || 0) + item.amount;
+                        }
+
+                        const row = document.createElement('div');
+                        row.className = `item-row ${item.type === 'income' ? 'income-border' : 'expense-border'}`;
+                        row.innerHTML = `
+                            <div class="item-info">
+                                <span class="item-name">${item.name}</span>
+                                <span class="item-category">[${item.category || 'عام'}]</span>
+                                <span class="item-date">🗓️ ${item.date || 'تاريخ غير مسجل'}</span>
+                            </div>
+                            <div>
+                                <span style="font-weight:bold; margin-left:10px;">${item.type === 'income' ? '+' : '-'}${item.amount.toFixed(2)} ر.س</span>
+                                <button class="btn-danger" style="padding:4px 8px; font-size:0.8rem;">حذف</button>
+                            </div>
+                        `;
+
+                        row.querySelector('button').addEventListener('click', () => {
+                            remove(ref(db, `users/${userId}/transactions/${key}`));
+                        });
+
+                        list.appendChild(row);
+                    });
+                }
+
+                document.getElementById('totalIncome').innerText = `${incomeSum.toFixed(2)} ر.س`;
+                document.getElementById('totalExpenses').innerText = `${expenseSum.toFixed(2)} ر.س`;
+                document.getElementById('netBalance').innerText = `${(incomeSum - expenseSum).toFixed(2)} ر.س`;
+
+                updateChart(categoryTotals);
+            });
+
+            // ب) جلب طلبات الشراء المعلقة
+            onValue(ref(db, `users/${userId}/requests`), (snapshot) => {
+                const data = snapshot.val();
+                const reqList = document.getElementById('requestsList');
+                reqList.innerHTML = '';
+
+                if (data) {
+                    Object.keys(data).forEach(key => {
+                        const req = data[key];
+                        if (req.status === "pending") {
+                            const row = document.createElement('div');
+                            row.className = "item-row pending-border";
+                            row.innerHTML = `
+                                <div class="item-info">
+                                    <span class="item-name">🛍️ ${req.itemName}</span>
+                                    <span class="item-category">المطلوب بواسطة: ${req.requester}</span>
+                                    <span class="item-date">🗓️ ${req.date}</span>
+                                </div>
+                                <div class="action-btns">
+                                    <button class="btn-success approve-btn">موافقة وتحديد السعر</button>
+                                    <button class="btn-danger reject-btn">إلغاء</button>
+                                </div>
+                            `;
+
+                            // عند ضغط الموافق: إظهار النافذة لإدخال السعر والتأكيد
+                            row.querySelector('.approve-btn').addEventListener('click', () => {
+                                const priceInput = prompt(`أدخل السعر المعتمد النهائي لشراء (${req.itemName}):`);
+                                if (priceInput !== null && priceInput !== "" && !isNaN(priceInput)) {
+                                    const finalPrice = parseFloat(priceInput);
+                                    
+                                    // 1. تحويل الطلب إلى مصروف مالي مسجل تلقائياً
+                                    push(ref(db, `users/${userId}/transactions`), {
+                                        name: `شراء طلب: ${req.itemName} (طلب ${req.requester})`,
+                                        amount: finalPrice,
+                                        category: "تسوق",
+                                        type: "expense",
+                                        date: getCurrentFormattedDate()
+                                    });
+
+                                    // 2. إزالة الطلب المعلق من قائمة الطلبات
+                                    remove(ref(db, `users/${userId}/requests/${key}`));
+                                    alert("تمت الموافقة وتأكيد شراء المنتج وإضافته للمصاريف بنجاح!");
+                                } else if (priceInput !== null) {
+                                    alert("يرجى كتابة رقم صحيح للسعر.");
+                                }
+                            });
+
+                            row.querySelector('.reject-btn').addEventListener('click', () => {
+                                remove(ref(db, `users/${userId}/requests/${key}`));
+                            });
+
+                            reqList.appendChild(row);
+                        }
+                    });
+                } else {
+                    reqList.innerHTML = '<p style="color:var(--text-muted); text-align:center;">لا توجد طلبات معلقة حالياً.</p>';
+                }
+            });
+        }
+
+        // --- تحديث الرسم البياني ---
+        function updateChart(categoryData) {
+            const ctx = document.getElementById('expenseChart').getContext('2d');
+            const labels = Object.keys(categoryData);
+            const dataValues = Object.values(categoryData);
+
+            if (myChart) myChart.destroy();
+
+            myChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels.length > 0 ? labels : ['لا يوجد مصاريف'],
+                    datasets: [{
+                        data: dataValues.length > 0 ? dataValues : [1],
+                        backgroundColor: ['#ef4444', '#f59e0b', '#10b981', '#6366f1', '#ec4899', '#8b5cf6']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { font: { family: 'Tajawal' } } }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
