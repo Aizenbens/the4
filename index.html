@@ -3,493 +3,295 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مستشار المصاريف الذكي - نظام الغرف والطلبات</title>
-    
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-
+    <title>مُدير المصاريف الذكي</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
-            --card-bg: rgba(30, 41, 59, 0.7);
-            --primary: #6366f1;
-            --primary-hover: #4f46e5;
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
             --success: #10b981;
             --danger: #ef4444;
-            --warning: #f59e0b;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
+            --background: #f3f4f6;
+            --card-bg: #ffffff;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
         }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Tajawal', sans-serif;
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: var(--bg-gradient);
+            background-color: var(--background);
             color: var(--text-main);
             min-height: 100vh;
-            margin: 0;
-            padding: 20px;
             display: flex;
             justify-content: center;
             align-items: center;
-            box-sizing: border-box;
+            padding: 20px;
         }
+
         .container {
-            background: var(--card-bg);
-            backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 30px;
-            border-radius: 24px;
             width: 100%;
-            max-width: 650px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            max-width: 500px;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
         }
-        h2, h3, h4 { text-align: center; margin-top: 0; }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; color: var(--text-muted); font-size: 0.9rem; }
-        input {
-            width: 100%; padding: 12px; background: rgba(15, 23, 42, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px;
-            color: #fff; font-size: 1rem; box-sizing: border-box;
+
+        h2 {
+            text-align: center;
+            margin-bottom: 25px;
+            color: var(--primary);
         }
-        input:focus { outline: none; border-color: var(--primary); }
-        input:disabled { background: rgba(15, 23, 42, 0.3); color: var(--text-muted); cursor: not-allowed; }
-        
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            outline: none;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
         button {
-            width: 100%; padding: 12px; background: var(--primary); color: white;
-            border: none; border-radius: 12px; font-size: 1rem; font-weight: 600;
-            cursor: pointer; transition: all 0.2s; margin-top: 5px;
+            width: 100%;
+            padding: 12px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
         }
-        button:hover { background: var(--primary-hover); }
-        .btn-success { background: var(--success); }
-        .btn-danger { background: var(--danger); }
-        .btn-warning { background: var(--warning); color: #000; }
+
+        button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .switch-link {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .switch-link span {
+            color: var(--primary);
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .dashboard {
+            max-width: 800px;
+        }
+
+        .header-dash {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .logout-btn {
+            width: auto;
+            padding: 6px 15px;
+            background-color: var(--danger);
+            font-size: 0.9rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: #f9fafb;
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid #f3f4f6;
+        }
+
+        .stat-card h4 {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 5px;
+        }
+
+        .stat-card p {
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        .stat-income { color: var(--success); }
+        .stat-expense { color: var(--danger); }
+        .stat-balance { color: var(--primary); }
+
+        .row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .items-list {
+            margin-top: 25px;
+            max-height: 250px;
+            overflow-y: auto;
+        }
+
+        .item-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: #f9fafb;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .item-row.income-border { border-right: 4px solid var(--success); }
+        .item-row.expense-border { border-right: 4px solid var(--danger); }
+
+        .item-info { display: flex; flex-direction: column; }
+        .item-name { font-weight: bold; }
+        .item-cost { font-size: 0.9rem; color: var(--text-muted); }
+
+        .delete-btn {
+            background: none;
+            color: var(--danger);
+            border: none;
+            width: auto;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .delete-btn:hover { background: #fee2e2; border-radius: 4px; }
         .hidden { display: none !important; }
-        .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 20px 0; }
-        .stat-card { background: rgba(15, 23, 42, 0.4); padding: 15px; border-radius: 16px; text-align: center; border: 1px solid rgba(255,255,255,0.05); }
-        .stat-value { font-size: 1.4rem; font-weight: 700; }
-        .text-success { color: var(--success); }
-        .text-danger { color: var(--danger); }
-        
-        .section-card {
-            background: rgba(15, 23, 42, 0.3); padding: 15px; border-radius: 16px; 
-            margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.05);
-        }
-        
-        .item-list { list-style: none; padding: 0; max-height: 180px; overflow-y: auto; }
-        .item-box {
-            background: rgba(255, 255, 255, 0.03); padding: 12px; margin-bottom: 8px;
-            border-radius: 12px; display: flex; justify-content: space-between; align-items: center;
-            border-left: 4px solid var(--primary);
-        }
-        .item-actions { display: flex; gap: 8px; }
-        .action-btn { width: auto; padding: 6px 12px; font-size: 0.85rem; border-radius: 8px; margin: 0; }
-        
-        .room-badge { background: #1e293b; padding: 12px; border-radius: 12px; font-size: 0.9rem; text-align: center; margin-bottom: 20px; border: 1px dashed var(--primary); color: #fff;}
-        .toggle-auth { text-align: center; margin-top: 15px; color: var(--primary); cursor: pointer; text-decoration: underline; font-size: 0.9rem; }
-        
-        /* تصميم النافذة المنبثقة للتفاصيل والأرشيف */
-        .modal {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(8px);
-            display: flex; justify-content: center; align-items: center; z-index: 1000;
-        }
-        .modal-content {
-            background: #1e293b; border: 1px solid rgba(255,255,255,0.1);
-            padding: 25px; border-radius: 20px; width: 90%; max-width: 500px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5); max-height: 80vh; overflow-y: auto;
-        }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div id="room-init-screen" class="hidden">
-        <h2>مستشار المصاريف الذكي 📊</h2>
-        <p style="text-align: center; color: var(--text-muted);">هذا الموقع لا يحتوي على غرف عامة لحماية خصوصيتك. يرجى إنشاء غرفة خاصة بك ودعوة من تريد.</p>
-        <button onclick="createNewPrivateRoom()" style="font-size: 1.1rem; padding: 15px;">انقر هنا لإنشاء غرفة خاصة جديدة فوراً 🔒</button>
-    </div>
-
-    <div id="auth-screen" class="hidden">
-        <div class="room-badge">أنت تحاول الدخول إلى غرفة خاصة ومحمية 🔒</div>
-        <h2 id="auth-title">تسجيل الدخول</h2>
-        <div class="form-group">
-            <label>اسم المستخدم</label>
-            <input type="text" id="username" placeholder="أدخل اسمك">
-        </div>
-        <div class="form-group">
-            <label>كلمة المرور</label>
-            <input type="password" id="password" placeholder="••••••••">
-        </div>
-        <button id="main-auth-btn" onclick="handleAuth()">دخول</button>
-        <div class="toggle-auth" id="toggle-text" onclick="toggleAuthMode()">ليس لديك حساب؟ إنشاء حساب جديد في هذه الغرفة</div>
-    </div>
-
-    <div id="main-screen" class="hidden">
-        <div class="room-badge" id="room-info" onclick="copyRoomLink()" style="cursor: pointer;" title="اضغط لنسخ رابط الغرفة المباشر">مساحة خاصة 🔒 (اضغط لنسخ رابط الدعوة)</div>
-        <h2 style="font-size: 1.3rem;">مرحباً، <span id="user-display" style="color: var(--primary);"></span> 👋</h2>
-        
-        <div class="section-card">
-            <label>إجمالي الدخل المتاح للغرفة</label>
-            <div class="form-group" style="display: grid; grid-template-columns: 2fr 1fr; gap: 10px; align-items: center;">
-                <input type="number" id="income-input" placeholder="0" disabled>
-                <button id="edit-income-btn" onclick="toggleIncomeEdit()" style="margin: 0; background: #4b5563;">تعديل الدخل</button>
-            </div>
-            <div class="dashboard-grid">
-                <div class="stat-card">
-                    <label>إجمالي المصاريف</label>
-                    <div id="total-expenses" class="stat-value text-danger">0</div>
-                </div>
-                <div class="stat-card">
-                    <label>المتبقي للغرفة</label>
-                    <div id="remaining-budget" class="stat-value text-success">0</div>
-                </div>
-            </div>
-            <button class="btn-warning" onclick="startNewMonth()">🚀 بدء شهر جديد (أرشفة الحالي)</button>
-        </div>
-
-        <div class="section-card">
-            <h3>إضافة مصروف مباشر</h3>
-            <div class="form-group" style="display: grid; grid-template-columns: 2fr 1fr; gap: 10px;">
-                <input type="text" id="item-name" placeholder="الصنف (تفاح...)">
-                <input type="number" id="item-cost" placeholder="المبلغ">
-            </div>
-            <button onclick="addExpense()">إضافة للقائمة</button>
-        </div>
-
-        <div class="section-card">
-            <h3>إرسال طلب شراء للموافقة 🔔</h3>
+    <div id="authCard" class="container">
+        <h2 id="authTitle">تسجيل الدخول</h2>
+        <form id="authForm">
             <div class="form-group">
-                <input type="text" id="req-name" placeholder="ما هي السلعة المطلوبة؟ (السعر غير إجباري هنا)">
+                <label for="email">البريد الإلكتروني</label>
+                <input type="email" id="email" required placeholder="example@mail.com">
             </div>
-            <button onclick="addRequest()" style="background: #a855f7;">إرسال طلب</button>
-            
-            <h4 style="margin: 15px 0 5px 0; color: var(--warning); text-align: right;">طلبات في انتظار الموافقة وتحديد السعر:</h4>
-            <ul id="requests-container" class="item-list"></ul>
+            <div class="form-group">
+                <label for="password">كلمة المرور</label>
+                <input type="password" id="password" required placeholder="••••••••">
+            </div>
+            <button type="submit" id="authBtn">دخول</button>
+        </form>
+        <div class="switch-link">
+            <span id="switchAuth">ليس لديك حساب؟ سجل الآن</span>
         </div>
-
-        <div class="section-card">
-            <h3 style="text-align: right; font-size: 1.1rem; color: var(--success);">المصاريف المعتمدة للشهر الحالي</h3>
-            <ul id="expenses-container" class="item-list"></ul>
-            
-            <h3 style="margin: 25px 0 10px 0; font-size: 1.1rem; color: var(--text-muted); text-align: right;">🗄️ السجلات والأشهر المؤرشفة السابقة</h3>
-            <ul id="archive-container" class="item-list" style="max-height: 220px;"></ul>
-        </div>
-
-        <button style="background: transparent; border: 1px solid rgba(255,255,255,0.2); margin-top: 10px;" onclick="logout()">تسجيل خروج</button>
     </div>
-</div>
 
-<div id="details-modal" class="modal hidden">
-    <div class="modal-content">
-        <h3 id="modal-month-title" style="color: var(--primary);">تفاصيل الشهر</h3>
-        <div class="dashboard-grid" style="margin-bottom: 15px;">
+    <div id="dashboardCard" class="container dashboard hidden">
+        <div class="header-dash">
+            <h2>مُدير المصاريف الذكي</h2>
+            <button class="logout-btn" id="logoutBtn">خروج</button>
+        </div>
+
+        <div class="stats-grid">
             <div class="stat-card">
-                <label>الدخل المؤرشف</label>
-                <div id="modal-income" class="stat-value" style="color:#fff;">0</div>
+                <h4>الدخل</h4>
+                <p class="stat-income" id="totalIncome">0.00 ر.س</p>
             </div>
             <div class="stat-card">
-                <label>المصاريف</label>
-                <div id="modal-expenses" class="stat-value text-danger">0</div>
+                <h4>المصاريف</h4>
+                <p class="stat-expense" id="totalExpenses">0.00 ر.س</p>
+            </div>
+            <div class="stat-card">
+                <h4>الرصيد</h4>
+                <p class="stat-balance" id="netBalance">0.00 ر.س</p>
             </div>
         </div>
-        <div class="stat-card" style="margin-bottom: 20px;">
-            <label>الموفر / المتبقي</label>
-            <div id="modal-remaining" class="stat-value text-success">0</div>
-        </div>
-        <h4 style="text-align: right; color: var(--text-muted); font-size: 0.95rem;">قائمة المشتريات والمصاريف بالتفصيل (مغلقة):</h4>
-        <ul id="modal-items-list" class="item-list" style="max-height: 200px;"></ul>
-        <button onclick="closeModal()" style="background: #4b5563; margin-top: 15px;">إغلاق التفاصيل</button>
+
+        <form id="transactionForm">
+            <div class="row">
+                <div class="form-group">
+                    <label for="transName">البيان / الوصف</label>
+                    <input type="text" id="transName" required placeholder="مثال: راتب، بقالة...">
+                </div>
+                <div class="form-group">
+                    <label for="transAmount">المبلغ</label>
+                    <input type="number" id="transAmount" step="0.01" required placeholder="0.00">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="transType">نوع المعاملة</label>
+                <select id="transType">
+                    <option value="income">دخل (+)</option>
+                    <option value="expense">مصروف (-)</option>
+                </select>
+            </div>
+            <button type="submit">إضافة المعاملة</button>
+        </form>
+
+        <div class="items-list" id="transactionsList"></div>
     </div>
-</div>
 
-<script>
-    const firebaseConfig = {
-        apiKey: "AIzaSyAa8MbBc8vzVXGhjl2pnhjbHAivcZqSx6M",
-        authDomain: "the-713f0.firebaseapp.com",
-        projectId: "the-713f0",
-        storageBucket: "the-713f0.firebasestorage.app",
-        messagingSenderId: "32243194262",
-        appId: "1:32243194262:web:26c80b32458034cb86e5b7",
-        measurementId: "G-JTC7GQ1L84",
-        databaseURL: "https://the-713f0-default-rtdb.firebaseio.com"
-    };
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { 
+            getAuth, 
+            createUserWithEmailAndPassword, 
+            signInWithEmailAndPassword, 
+            signOut, 
+            onAuthStateChanged 
+        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { 
+            getDatabase, 
+            ref, 
+            push, 
+            onValue, 
+            remove 
+        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
+        // إعدادات مشروعك في Firebase (معرّف مشروعك the-713f0)
+        const firebaseConfig = {
+            databaseURL: "https://the-713f0-default-rtdb.firebaseio.com",
+            projectId: "the-713f0"
+        };
 
-    let isLoginMode = true;
-    let currentRoom = null;
-    let globalRoomData = {}; // لتخزين بيانات الأرشيف للوصول السريع
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
 
-    const urlParams = new URLSearchParams(window.location.search);
-    if(urlParams.has('room')) {
-        currentRoom = urlParams.get('room');
-        const savedUser = localStorage.getItem(`active_user_${currentRoom}`);
-        if (savedUser) {
-            loginSuccess(savedUser);
-        } else {
-            document.getElementById('auth-screen').classList.remove('hidden');
-        }
-    } else {
-        document.getElementById('room-init-screen').classList.remove('hidden');
-    }
+        let isLoginMode = true;
+        let currentUser = null;
 
-    function createNewPrivateRoom() {
-        const uniqueRoomId = "room_" + Math.random().toString(36).substr(2, 9);
-        const privateUrl = window.location.origin + window.location.pathname + "?room=" + uniqueRoomId;
-        db.ref('rooms/' + uniqueRoomId).set({ income: 0 }).then(() => {
-            window.location.href = privateUrl;
-        });
-    }
-
-    function toggleAuthMode() {
-        isLoginMode = !isLoginMode;
-        document.getElementById('auth-title').innerText = isLoginMode ? "تسجيل الدخول" : "إنشاء حساب جديد";
-        document.getElementById('main-auth-btn').innerText = isLoginMode ? "دخول" : "تسجيل وتفعيل الحساب";
-        document.getElementById('toggle-text').innerText = isLoginMode ? "ليس لديك حساب؟ إنشاء حساب جديد" : "لديك حساب بالفعل؟ سجل دخولك";
-    }
-
-    function handleAuth() {
-        const user = document.getElementById('username').value.trim().toLowerCase();
-        const pass = document.getElementById('password').value.trim();
-        if(!user || !pass) { alert('يرجى ملء الحقول'); return; }
-        const userRef = db.ref(`rooms/${currentRoom}/users/${user}`);
-        
-        if(isLoginMode) {
-            userRef.once('value', (snapshot) => {
-                if (snapshot.exists() && snapshot.val().password === pass) {
-                    localStorage.setItem(`active_user_${currentRoom}`, user);
-                    loginSuccess(user);
-                } else {
-                    alert('خطأ: اسم المستخدم أو كلمة المرور غير صحيحة في هذه الغرفة!');
-                }
-            });
-        } else {
-            userRef.once('value', (snapshot) => {
-                if (snapshot.exists()) {
-                    alert('اسم المستخدم محجوز مسبقاً داخل هذه الغرفة!');
-                } else {
-                    userRef.set({ password: pass }).then(() => {
-                        alert('تم تسجيل حسابك بنجاح في الغرفة! يمكنك تسجيل الدخول الآن.');
-                        toggleAuthMode();
-                    });
-                }
-            });
-        }
-    }
-
-    function loginSuccess(user) {
-        document.getElementById('auth-screen').classList.add('hidden');
-        document.getElementById('main-screen').classList.remove('hidden');
-        document.getElementById('user-display').innerText = user;
-        listenToData();
-    }
-
-    // خاصية قفل وتعديل الدخل الذكية
-    function toggleIncomeEdit() {
-        const incomeInput = document.getElementById('income-input');
-        const editBtn = document.getElementById('edit-income-btn');
-        
-        if(incomeInput.disabled) {
-            incomeInput.disabled = false;
-            incomeInput.focus();
-            editBtn.innerText = "حفظ القيمة";
-            editBtn.style.background = "var(--success)";
-        } else {
-            incomeInput.disabled = true;
-            editBtn.innerText = "تعديل الدخل";
-            editBtn.style.background = "#4b5563";
-            const inc = parseFloat(incomeInput.value) || 0;
-            db.ref(`rooms/${currentRoom}/income`).set(inc);
-        }
-    }
-
-    function listenToData() {
-        db.ref('rooms/' + currentRoom).on('value', (snapshot) => {
-            const data = snapshot.val() || {};
-            globalRoomData = data; // حفظ نسخة مؤقتة لقراءة الأرشيف لاحقاً
-            
-            if(document.getElementById('income-input').disabled) {
-                document.getElementById('income-input').value = data.income || '';
-            }
-            
-            // 1. عرض المصاريف المعتمدة للشهر الحالي
-            const expenseContainer = document.getElementById('expenses-container');
-            expenseContainer.innerHTML = '';
-            let total = 0;
-
-            if(data.expenses) {
-                Object.keys(data.expenses).forEach(key => {
-                    const item = data.expenses[key];
-                    total += parseFloat(item.cost);
-
-                    const li = document.createElement('li');
-                    li.className = 'item-box';
-                    li.innerHTML = `<span><b>${item.name}</b> (${item.cost})</span>`;
-                    
-                    const delBtn = document.createElement('button');
-                    delBtn.className = 'action-btn btn-danger';
-                    delBtn.innerText = 'حذف';
-                    delBtn.onclick = () => db.ref(`rooms/${currentRoom}/expenses/${key}`).remove();
-                    
-                    li.appendChild(delBtn);
-                    expenseContainer.appendChild(li);
-                });
-            }
-
-            const remaining = (data.income || 0) - total;
-            document.getElementById('total-expenses').innerText = total;
-            document.getElementById('remaining-budget').innerText = remaining;
-
-            // 2. عرض طلبات الشراء
-            const requestsContainer = document.getElementById('requests-container');
-            requestsContainer.innerHTML = '';
-            if(data.requests) {
-                Object.keys(data.requests).forEach(key => {
-                    const item = data.requests[key];
-                    const li = document.createElement('li');
-                    li.className = 'item-box';
-                    li.style.borderLeftColor = 'var(--warning)';
-                    li.innerHTML = `<span><b>${item.name}</b> <span style="color:var(--text-muted); font-size:0.85rem;">(طلب معلق)</span></span>`;
-                    
-                    const actionsDiv = document.createElement('div');
-                    actionsDiv.className = 'item-actions';
-
-                    const approveBtn = document.createElement('button');
-                    approveBtn.className = 'action-btn btn-success';
-                    approveBtn.innerText = 'موافقة وتسعير';
-                    approveBtn.onclick = () => approveRequest(key, item.name);
-
-                    const rejectBtn = document.createElement('button');
-                    rejectBtn.className = 'action-btn btn-danger';
-                    rejectBtn.innerText = 'رفض';
-                    rejectBtn.onclick = () => db.ref(`rooms/${currentRoom}/requests/${key}`).remove();
-
-                    actionsDiv.appendChild(approveBtn);
-                    actionsDiv.appendChild(rejectBtn);
-                    li.appendChild(actionsDiv);
-                    requestsContainer.appendChild(li);
-                });
-            }
-
-            // 3. عرض الأرشيف مع خاصية عرض المزيد والتفاصيل
-            const archiveContainer = document.getElementById('archive-container');
-            archiveContainer.innerHTML = '';
-            if(data.archive) {
-                Object.keys(data.archive).forEach(monthKey => {
-                    const archiveData = data.archive[monthKey];
-                    const li = document.createElement('li');
-                    li.className = 'item-box';
-                    li.style.borderLeftColor = 'var(--text-muted)';
-                    li.innerHTML = `<span>📅 ${monthKey}</span>`;
-                    
-                    const viewBtn = document.createElement('button');
-                    viewBtn.className = 'action-btn';
-                    viewBtn.style.background = "var(--primary)";
-                    viewBtn.innerText = 'عرض التفاصيل والسلع';
-                    viewBtn.onclick = () => showMonthDetails(monthKey);
-                    
-                    li.appendChild(viewBtn);
-                    archiveContainer.appendChild(li);
-                });
-            } else {
-                archiveContainer.innerHTML = '<li style="text-align:center; color:var(--text-muted); font-size:0.9rem; list-style:none;">لا توجد أشهر مؤرشفة بعد.</li>';
-            }
-        });
-    }
-
-    function addExpense() {
-        const name = document.getElementById('item-name').value.trim();
-        const cost = parseFloat(document.getElementById('item-cost').value) || 0;
-        if(!name || cost <= 0) return alert('أدخل بيانات صحيحة');
-
-        db.ref(`rooms/${currentRoom}/expenses`).push({ name: name, cost: cost });
-        document.getElementById('item-name').value = '';
-        document.getElementById('item-cost').value = '';
-    }
-
-    function addRequest() {
-        const name = document.getElementById('req-name').value.trim();
-        if(!name) return alert('يرجى كتابة السلعة المطلوبة أولاً');
-
-        db.ref(`rooms/${currentRoom}/requests`).push({ name: name });
-        document.getElementById('req-name').value = '';
-    }
-
-    function approveRequest(key, name) {
-        const finalCostInput = prompt(`كم السعر النهائي والمبلغ المعتمد لـ (${name})؟`);
-        const cost = parseFloat(finalCostInput);
-        if (finalCostInput === null) return;
-        if (isNaN(cost) || cost <= 0) return alert('يرجى إدخال سعر صحيح للموافقة!');
-
-        db.ref(`rooms/${currentRoom}/expenses`).push({ name: name, cost: cost }).then(() => {
-            db.ref(`rooms/${currentRoom}/requests/${key}`).remove();
-        });
-    }
-
-    // خاصية فتح تفاصيل الشهر المؤرشف (عرض مغلق بالكامل)
-    function showMonthDetails(monthKey) {
-        const archiveData = globalRoomData.archive[monthKey];
-        if(!archiveData) return;
-
-        document.getElementById('modal-month-title').innerText = `سجل شهر: ${monthKey}`;
-        document.getElementById('modal-income').innerText = archiveData.income || 0;
-        document.getElementById('modal-expenses').innerText = archiveData.totalExpenses || 0;
-        document.getElementById('modal-remaining').innerText = (archiveData.income || 0) - (archiveData.totalExpenses || 0);
-
-        const listContainer = document.getElementById('modal-items-list');
-        listContainer.innerHTML = '';
-
-        if(archiveData.expensesList) {
-            Object.keys(archiveData.expensesList).forEach(k => {
-                const item = archiveData.expensesList[k];
-                const li = document.createElement('li');
-                li.className = 'item-box';
-                li.style.borderLeftColor = 'var(--text-muted)';
-                li.innerHTML = `<span><b>${item.name}</b></span> <span>المبلغ: ${item.cost}</span>`;
-                listContainer.appendChild(li);
-            });
-        } else {
-            listContainer.innerHTML = '<li>لم يتم تسجيل أي سلع في هذا الشهر.</li>';
-        }
-
-        document.getElementById('details-modal').classList.remove('hidden');
-    }
-
-    function closeModal() {
-        document.getElementById('details-modal').classList.add('hidden');
-    }
-
-    function startNewMonth() {
-        if(!confirm("هل أنت متأكد من بدء شهر جديد؟ سيتم ترحيل وحفظ جميع مصاريفك الحالية في الأرشيف وتصفير القائمة الحالية.")) return;
-
-        const totalExpenses = parseFloat(document.getElementById('total-expenses').innerText) || 0;
-        const currentIncome = parseFloat(document.getElementById('income-input').value) || 0;
-        
-        db.ref(`rooms/${currentRoom}/expenses`).once('value', (snapshot) => {
-            const currentExpenses = snapshot.val() || {};
-            const dateStr = new Date().toLocaleDateString('ar-EG', { year: 'numeric', month: 'long' });
-
-            db.ref(`rooms/${currentRoom}/archive/${dateStr}`).set({
-                income: currentIncome,
-                expensesList: currentExpenses,
-                totalExpenses: totalExpenses
-            }).then(() => {
-                db.ref(`rooms/${currentRoom}/expenses`).remove();
-                db.ref(`rooms/${currentRoom}/requests`).remove();
-                alert("تم أرشفة الشهر بنجاح وتصفير لوحة التحكم للشهر الجديد! 🚀");
-            });
-        });
-    }
-
-    function copyRoomLink() {
-        navigator.clipboard.writeText(window.location.href);
-        alert("تم نسخ رابط الغرفة الخاصة الحالية بنجاح! أرسله لمن تريده أن يدخل معك.");
-    }
-
-    function logout() {
-        localStorage.removeItem(`active_user_${currentRoom}`);
-        window.location.href = window.location.origin + window.location.pathname;
-    }
-</script>
-</body>
-</html>
+        // التبديل بين واجهة الدخول والتسجيل
+        document.getElementById('switchAuth').addEventListener('click', () => {
+            isLoginMode = !isLoginMode;
+            document.getElementById('authTitle').innerText = is
