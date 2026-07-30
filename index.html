@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مدير المصاريف والغرف الذكي</title>
+    <title>مدير المصاريف والغرف</title>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
             --primary: #4f46e5;
@@ -17,7 +16,7 @@
             --card-bg: #ffffff;
             --text-main: #1f2937;
             --text-muted: #6b7280;
-            --border-color: #e5e7eb;
+            --border: #e5e7eb;
         }
 
         body.dark-mode {
@@ -25,7 +24,7 @@
             --card-bg: #1e293b;
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
-            --border-color: #334155;
+            --border: #334155;
         }
 
         * {
@@ -33,7 +32,7 @@
             margin: 0;
             padding: 0;
             font-family: 'Tajawal', sans-serif;
-            transition: background-color 0.3s, color 0.3s;
+            transition: background 0.2s;
         }
 
         body {
@@ -43,115 +42,108 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 20px;
+            padding: 15px;
         }
 
         .container {
             width: 100%;
             max-width: 500px;
             background: var(--card-bg);
-            padding: 30px;
+            padding: 25px;
             border-radius: 16px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
         }
 
-        .dashboard { max-width: 900px; }
+        h2, h3 { text-align: center; margin-bottom: 20px; color: var(--primary); }
 
-        .header-dash {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-            flex-wrap: wrap;
-            gap: 10px;
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 6px; font-weight: 500; font-size: 0.9rem; }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--card-bg);
+            color: var(--text-main);
+            outline: none;
         }
-
-        .header-controls { display: flex; gap: 10px; }
 
         button {
-            padding: 10px 16px;
+            width: 100%;
+            padding: 11px;
             background-color: var(--primary);
             color: white;
             border: none;
             border-radius: 8px;
-            font-size: 0.95rem;
             font-weight: bold;
             cursor: pointer;
         }
 
-        button:hover { background-color: var(--primary-hover); }
-        .btn-secondary { background-color: #64748b; }
-        .btn-danger { background-color: var(--danger); }
-        .btn-success { background-color: var(--success); }
-        .btn-warning { background-color: var(--warning); color: #000; }
+        button:hover { opacity: 0.9; }
+        .btn-secondary { background: #64748b; }
+        .btn-danger { background: var(--danger); }
+        .btn-warning { background: var(--warning); color: #000; }
+        .btn-success { background: var(--success); }
 
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 6px; font-weight: 500; }
-        .form-group input, .form-group select {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid var(--border-color);
-            background: var(--card-bg);
-            color: var(--text-main);
-            border-radius: 8px;
-            outline: none;
-        }
-
-        .room-box {
+        .room-bar {
             background: rgba(79, 70, 229, 0.08);
             border: 1px dashed var(--primary);
-            padding: 15px;
+            padding: 12px;
             border-radius: 8px;
             text-align: center;
             margin-bottom: 20px;
+            font-size: 0.85rem;
         }
 
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            margin-bottom: 25px;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
         }
 
         .stat-card {
             background: rgba(0,0,0,0.02);
-            padding: 15px;
-            border-radius: 12px;
+            padding: 12px;
+            border-radius: 8px;
             text-align: center;
-            border: 1px solid var(--border-color);
+            border: 1px solid var(--border);
         }
 
-        .stat-card h4 { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 5px; }
-        .stat-card p { font-size: 1.2rem; font-weight: 700; }
+        .stat-card h4 { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 4px; }
+        .stat-card p { font-size: 1.1rem; font-weight: 700; }
 
         .stat-income { color: var(--success); }
         .stat-expense { color: var(--danger); }
         .stat-balance { color: var(--primary); }
 
+        .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
         .section-title {
-            margin: 25px 0 15px 0;
+            font-size: 0.95rem;
+            margin: 20px 0 10px 0;
             padding-bottom: 5px;
             border-bottom: 2px solid var(--primary);
-            font-size: 1.1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        .row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-
         .items-list {
-            max-height: 300px;
+            max-height: 220px;
             overflow-y: auto;
-            margin-top: 15px;
+            margin-top: 10px;
         }
 
         .item-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 12px;
+            padding: 10px;
             background: rgba(0,0,0,0.02);
             border-radius: 8px;
-            margin-bottom: 10px;
-            border-right: 4px solid var(--border-color);
+            margin-bottom: 8px;
+            border-right: 4px solid var(--border);
         }
 
         .item-row.income-border { border-right-color: var(--success); }
@@ -159,129 +151,111 @@
         .item-row.pending-border { border-right-color: var(--warning); }
 
         .item-info { display: flex; flex-direction: column; }
-        .item-name { font-weight: bold; }
-        .item-date { font-size: 0.75rem; color: var(--text-muted); }
-        .item-author { font-size: 0.8rem; color: var(--primary); }
+        .item-name { font-weight: bold; font-size: 0.9rem; }
+        .item-meta { font-size: 0.75rem; color: var(--text-muted); }
 
-        .chart-container { position: relative; margin: 20px 0; max-height: 250px; }
+        .archive-card {
+            background: rgba(0,0,0,0.03);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
         .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
     <div id="authCard" class="container">
-        <h2 style="text-align:center; margin-bottom:20px; color:var(--primary);">الانضمام والتسجيل</h2>
+        <h2>الدخول للغرفة</h2>
         <form id="loginForm">
             <div class="form-group">
-                <label for="username">الاسم الشخصي</label>
-                <input type="text" id="username" required placeholder="ادخل اسمك">
+                <label>الاسم الشخصي</label>
+                <input type="text" id="username" required placeholder="أدخل اسمك">
             </div>
             <div class="form-group">
-                <label for="usercode">الكود الخصوصي (رمز الدخول)</label>
-                <input type="password" id="usercode" required placeholder="أدخل كود سري خاص بك">
+                <label>الكود الخصوصي (رمز الدخول)</label>
+                <input type="password" id="usercode" required placeholder="أدخل رمز سري خاص بك">
             </div>
             <div class="form-group">
-                <label for="roomIdInput">رمز الغرفة (اختياري للانضمام لغرفة معينة)</label>
-                <input type="text" id="roomIdInput" placeholder="أتركها فارغة لإنشاء غرفة جديدة تلقائياً">
+                <label>رمز الغرفة (اختياري)</label>
+                <input type="text" id="roomIdInput" placeholder="أتركه فارغاً لإنشاء غرفة جديدة">
             </div>
-            <button type="submit" style="width:100%">دخول إلى الغرفة</button>
+            <button type="submit">دخول إلى الغرفة</button>
         </form>
     </div>
 
-    <div id="dashboardCard" class="container dashboard hidden">
-        <div class="header-dash">
-            <h2>مدير مصاريف الغرفة</h2>
-            <div class="header-controls">
-                <button id="themeToggleBtn" class="btn-secondary">🌙 الوضع الداكن</button>
-                <button id="logoutBtn" class="btn-danger">تغيير الغرفة/الخروج</button>
+    <div id="dashboardCard" class="container hidden">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+            <span style="font-weight:bold;">مدير المصاريف</span>
+            <div>
+                <button id="themeToggleBtn" class="btn-secondary" style="width:auto; padding:5px 10px; font-size:0.8rem;">🌙</button>
+                <button id="logoutBtn" class="btn-danger" style="width:auto; padding:5px 10px; font-size:0.8rem;">خروج</button>
             </div>
         </div>
 
-        <div class="room-box">
-            <h4>رقم الغرفة الحالي: <span id="currentRoomDisplay" style="color:var(--primary);"></span></h4>
-            <p style="font-size:0.85rem; color:var(--text-muted); margin: 5px 0 10px 0;">أرسل هذا الرابط لأي شخص للانضمام لغرفتك مباشرة:</p>
-            <button id="copyLinkBtn" class="btn-warning" style="padding: 5px 12px; font-size:0.85rem;">📋 نسخ رابط الغرفة المباشر</button>
+        <div class="room-bar">
+            رمز الغرفة: <strong id="currentRoomDisplay" style="color:var(--primary);"></strong><br>
+            <button id="copyLinkBtn" class="btn-warning" style="margin-top:8px; padding:4px 8px; font-size:0.8rem; width:auto;">📋 نسخ رابط الغرفة المباشر</button>
         </div>
 
         <div class="stats-grid">
             <div class="stat-card">
-                <h4>الدخل الإجمالي</h4>
-                <p class="stat-income" id="totalIncome">0.00 ر.س</p>
+                <h4>الدخل</h4>
+                <p class="stat-income" id="totalIncome">0</p>
             </div>
             <div class="stat-card">
-                <h4>المصاريف الإجمالية</h4>
-                <p class="stat-expense" id="totalExpenses">0.00 ر.س</p>
+                <h4>المصاريف</h4>
+                <p class="stat-expense" id="totalExpenses">0</p>
             </div>
             <div class="stat-card">
-                <h4>صافي الرصيد</h4>
-                <p class="stat-balance" id="netBalance">0.00 ر.س</p>
+                <h4>المتبقي</h4>
+                <p class="stat-balance" id="netBalance">0</p>
             </div>
         </div>
 
-        <div class="chart-container">
-            <canvas id="expenseChart"></canvas>
-        </div>
-
-        <h3 class="section-title">إضافة معاملة مالية للغرفة</h3>
         <form id="transactionForm">
             <div class="row">
                 <div class="form-group">
-                    <label for="transName">الوصف / البيان</label>
-                    <input type="text" id="transName" required placeholder="مثال: بقالة، فواتير...">
+                    <label>البيان / الوصف</label>
+                    <input type="text" id="transName" required placeholder="مثال: بقالة، راتب">
                 </div>
                 <div class="form-group">
-                    <label for="transAmount">المبلغ</label>
+                    <label>المبلغ</label>
                     <input type="number" id="transAmount" step="0.01" required placeholder="0.00">
                 </div>
             </div>
-            <div class="row">
-                <div class="form-group">
-                    <label for="transCategory">الفئة</label>
-                    <select id="transCategory">
-                        <option value="طعام">طعام وبقالة</option>
-                        <option value="فواتير">فواتير وخدمات</option>
-                        <option value="تسوق">تسوق</option>
-                        <option value="مواصلات">مواصلات</option>
-                        <option value="دخل">دخل / تحويل</option>
-                        <option value="أخرى">أخرى</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="transType">النوع</label>
-                    <select id="transType">
-                        <option value="income">دخل (+)</option>
-                        <option value="expense">مصروف (-)</option>
-                    </select>
-                </div>
-            </div>
-            <button type="submit" style="width: 100%;">إضافة المعاملة</button>
-        </form>
-
-        <h3 class="section-title">طلب شراء منتج للغرفة (بدون تحديد سعر)</h3>
-        <form id="purchaseRequestForm">
             <div class="form-group">
-                <label for="reqItemName">اسم المنتج / الطلب</label>
-                <input type="text" id="reqItemName" required placeholder="مثال: اغراض العشاء، شاحن...">
+                <label>النوع</label>
+                <select id="transType">
+                    <option value="expense">مصروف (-)</option>
+                    <option value="income">دخل (+)</option>
+                </select>
             </div>
-            <button type="submit" class="btn-warning" style="width: 100%;">إرسال طلب الشراء</button>
+            <button type="submit">إضافة المعاملة</button>
         </form>
 
-        <h3 class="section-title">طلبات الشراء بانتظار الموافقة والتأكيد</h3>
+        <h3 class="section-title">طلب شراء جديد</h3>
+        <form id="purchaseRequestForm" class="row">
+            <input type="text" id="reqItemName" required placeholder="اسم الشيء المطلوب" style="padding:10px; border:1px solid var(--border); border-radius:8px;">
+            <button type="submit" class="btn-warning">إرسال الطلب</button>
+        </form>
         <div class="items-list" id="requestsList"></div>
 
-        <h3 class="section-title">سجل معاملات الغرفة المعتمدة</h3>
+        <div class="section-title">
+            <span>سجل الشهر الحالي</span>
+            <button id="archiveMonthBtn" class="btn-secondary" style="width:auto; padding:4px 8px; font-size:0.75rem;">📦 بدء شهر جديد وأرشفة الحالي</button>
+        </div>
         <div class="items-list" id="transactionsList"></div>
+
+        <h3 class="section-title">أرشيف الأشهر السابقة</h3>
+        <div id="archivesList"></div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { 
-            getDatabase, 
-            ref, 
-            push, 
-            onValue, 
-            remove 
-        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, push, onValue, remove, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
             databaseURL: "https://the-713f0-default-rtdb.firebaseio.com",
@@ -293,158 +267,148 @@
 
         let currentUser = "";
         let currentRoomId = "";
-        let myChart = null;
 
-        // --- فحص إذا تم فتح الصفحة عبر رابط غرفة مباشر ---
+        // فحص الرابط المباشر
         window.addEventListener('DOMContentLoaded', () => {
             const urlParams = new URLSearchParams(window.location.search);
             const roomFromUrl = urlParams.get('room');
-            if (roomFromUrl) {
-                document.getElementById('roomIdInput').value = roomFromUrl;
-            }
+            if (roomFromUrl) document.getElementById('roomIdInput').value = roomFromUrl;
         });
 
-        // --- الوضع الداكن ---
+        // الوضع الداكن
         document.getElementById('themeToggleBtn').addEventListener('click', () => {
             document.body.classList.toggle('dark-mode');
         });
 
-        // --- تسجيل الدخول بالاسم الكود والدخول للغرفة ---
+        // الدخول
         document.getElementById('loginForm').addEventListener('submit', (e) => {
             e.preventDefault();
             const username = document.getElementById('username').value.trim();
             const usercode = document.getElementById('usercode').value.trim();
             let roomId = document.getElementById('roomIdInput').value.trim();
 
-            if (!username || !usercode) {
-                alert("يرجى كتابة الاسم والكود الخصوصي");
-                return;
-            }
+            if (!username || !usercode) return alert("يرجى إدخال الاسم والكود");
 
             currentUser = `${username} (${usercode})`;
-
-            // إذا لم يُدخل غرفة، نولّد كود غرفة تلقائي جديد
-            if (!roomId) {
-                roomId = 'room_' + Math.random().toString(36).substr(2, 6);
-            }
-
+            if (!roomId) roomId = 'room_' + Math.random().toString(36).substr(2, 6);
             currentRoomId = roomId;
 
             document.getElementById('currentRoomDisplay').innerText = currentRoomId;
             document.getElementById('authCard').classList.add('hidden');
             document.getElementById('dashboardCard').classList.remove('hidden');
 
-            // تحديث رابط الصفحة في المتصفح ليحتوي رمز الغرفة
             const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?room=' + currentRoomId;
             window.history.pushState({path: newUrl}, '', newUrl);
 
-            loadRoomData(currentRoomId);
+            loadRoomData();
         });
 
-        // --- نسخ رابط الغرفة ---
+        // نسخ الرابط المباشر
         document.getElementById('copyLinkBtn').addEventListener('click', () => {
             navigator.clipboard.writeText(window.location.href);
-            alert("تم نسخ رابط الغرفة المباشر بنجاح! شاركه مع من تريد للانضمام معك.");
+            alert("تم نسخ رابط الغرفة المباشر بنجاح!");
         });
 
-        // --- الخروج ---
-        document.getElementById('logoutBtn').addEventListener('click', () => {
-            location.href = window.location.pathname; // إعادة التنشيط وإزالة معامل الغرفة من الرابط
-        });
+        document.getElementById('logoutBtn').addEventListener('click', () => location.href = window.location.pathname);
 
-        function getCurrentFormattedDate() {
-            const now = new Date();
-            return now.toLocaleDateString('ar-SA', { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+        function getDateFormatted() {
+            return new Date().toLocaleDateString('ar-SA', { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
         }
 
-        // --- إضافة معاملة مالية للغرفة ---
+        // إضافة معاملة
         document.getElementById('transactionForm').addEventListener('submit', (e) => {
             e.preventDefault();
             const name = document.getElementById('transName').value;
             const amount = parseFloat(document.getElementById('transAmount').value);
-            const category = document.getElementById('transCategory').value;
             const type = document.getElementById('transType').value;
 
-            push(ref(db, `rooms/${currentRoomId}/transactions`), {
-                name,
-                amount,
-                category,
-                type,
-                author: currentUser,
-                date: getCurrentFormattedDate()
+            push(ref(db, `rooms/${currentRoomId}/current_month`), {
+                name, amount, type, author: currentUser, date: getDateFormatted()
             });
 
             document.getElementById('transactionForm').reset();
         });
 
-        // --- تقديم طلب شراء للغرفة ---
+        // طلب شراء
         document.getElementById('purchaseRequestForm').addEventListener('submit', (e) => {
             e.preventDefault();
             const itemName = document.getElementById('reqItemName').value;
 
             push(ref(db, `rooms/${currentRoomId}/requests`), {
-                itemName,
-                requester: currentUser,
-                status: "pending",
-                date: getCurrentFormattedDate()
+                itemName, requester: currentUser, date: getDateFormatted()
             });
 
             document.getElementById('purchaseRequestForm').reset();
         });
 
-        // --- تحميل بيانات الغرفة المباشرة ---
-        function loadRoomData(roomId) {
-            // جلب المعاملات المالية للغرفة
-            onValue(ref(db, `rooms/${roomId}/transactions`), (snapshot) => {
+        // أرشفة الشهر الحالي وبدء شهر جديد
+        document.getElementById('archiveMonthBtn').addEventListener('click', () => {
+            const monthName = prompt("أدخل اسماً أو تاريخاً لهذا الشهر المُراد أرشوفته (مثال: شهر 7 - 2026):");
+            if (!monthName) return;
+
+            onValue(ref(db, `rooms/${currentRoomId}/current_month`), (snapshot) => {
+                const data = snapshot.val();
+                if (!data) return alert("لا توجد بيانات في الشهر الحالي لأرشتفها!");
+
+                let incomeSum = 0, expenseSum = 0;
+                Object.values(data).forEach(item => {
+                    if (item.type === 'income') incomeSum += item.amount;
+                    else expenseSum += item.amount;
+                });
+
+                // حفظ الأرشيف
+                push(ref(db, `rooms/${currentRoomId}/archives`), {
+                    monthName,
+                    incomeSum,
+                    expenseSum,
+                    netBalance: incomeSum - expenseSum,
+                    items: data,
+                    archivedAt: getDateFormatted()
+                }).then(() => {
+                    // مسح بيانات الشهر الحالي لبدء شهر جديد
+                    set(ref(db, `rooms/${currentRoomId}/current_month`), null);
+                    alert("تمت أرشفة الشهر وبدء شهر جديد بنجاح!");
+                });
+            }, { onlyOnce: true });
+        });
+
+        // تحميل البيانات
+        function loadRoomData() {
+            // المعاملات الحالية
+            onValue(ref(db, `rooms/${currentRoomId}/current_month`), (snapshot) => {
                 const data = snapshot.val();
                 const list = document.getElementById('transactionsList');
                 list.innerHTML = '';
-
-                let incomeSum = 0;
-                let expenseSum = 0;
-                let categoryTotals = {};
+                let incomeSum = 0, expenseSum = 0;
 
                 if (data) {
                     Object.keys(data).forEach(key => {
                         const item = data[key];
-                        if (item.type === 'income') {
-                            incomeSum += item.amount;
-                        } else {
-                            expenseSum += item.amount;
-                            categoryTotals[item.category] = (categoryTotals[item.category] || 0) + item.amount;
-                        }
+                        if (item.type === 'income') incomeSum += item.amount;
+                        else expenseSum += item.amount;
 
                         const row = document.createElement('div');
                         row.className = `item-row ${item.type === 'income' ? 'income-border' : 'expense-border'}`;
                         row.innerHTML = `
                             <div class="item-info">
                                 <span class="item-name">${item.name}</span>
-                                <span class="item-author">بواسطة: ${item.author || 'مجهول'} [${item.category || 'عام'}]</span>
-                                <span class="item-date">🗓️ ${item.date || ''}</span>
+                                <span class="item-meta">${item.author} | 🗓️ ${item.date}</span>
                             </div>
                             <div>
-                                <span style="font-weight:bold; margin-left:10px;">${item.type === 'income' ? '+' : '-'}${item.amount.toFixed(2)} ر.س</span>
-                                <button class="btn-danger" style="padding:4px 8px; font-size:0.8rem;">حذف</button>
+                                <span style="font-weight:bold; margin-left:8px;">${item.type === 'income' ? '+' : '-'}${item.amount.toFixed(2)}</span>
+                                <button onclick="deleteItem('current_month', '${key}')" class="btn-danger" style="padding:2px 6px; font-size:0.75rem; width:auto;">X</button>
                             </div>
                         `;
-
-                        row.querySelector('button').addEventListener('click', () => {
-                            remove(ref(db, `rooms/${roomId}/transactions/${key}`));
-                        });
-
                         list.appendChild(row);
                     });
                 }
-
-                document.getElementById('totalIncome').innerText = `${incomeSum.toFixed(2)} ر.س`;
-                document.getElementById('totalExpenses').innerText = `${expenseSum.toFixed(2)} ر.س`;
-                document.getElementById('netBalance').innerText = `${(incomeSum - expenseSum).toFixed(2)} ر.س`;
-
-                updateChart(categoryTotals);
+                document.getElementById('totalIncome').innerText = incomeSum.toFixed(2);
+                document.getElementById('totalExpenses').innerText = expenseSum.toFixed(2);
+                document.getElementById('netBalance').innerText = (incomeSum - expenseSum).toFixed(2);
             });
 
-            // جلب طلبات الشراء المعلقة للغرفة
-            onValue(ref(db, `rooms/${roomId}/requests`), (snapshot) => {
+            // الطلبات المعلقة
+            onValue(ref(db, `rooms/${currentRoomId}/requests`), (snapshot) => {
                 const data = snapshot.val();
                 const reqList = document.getElementById('requestsList');
                 reqList.innerHTML = '';
@@ -457,69 +421,82 @@
                         row.innerHTML = `
                             <div class="item-info">
                                 <span class="item-name">🛍️ ${req.itemName}</span>
-                                <span class="item-author">صاحب الطلب: ${req.requester}</span>
-                                <span class="item-date">🗓️ ${req.date}</span>
+                                <span class="item-meta">طَلَب: ${req.requester} | 🗓️ ${req.date}</span>
                             </div>
-                            <div style="display:flex; gap:5px;">
-                                <button class="btn-success approve-btn">تأكيد ورصد السعر</button>
-                                <button class="btn-danger reject-btn">حذف</button>
+                            <div style="display:flex; gap:4px;">
+                                <button onclick="approveRequest('${key}', '${req.itemName}')" class="btn-success" style="padding:3px 6px; font-size:0.75rem; width:auto;">تأكيد بالسعر</button>
+                                <button onclick="deleteItem('requests', '${key}')" class="btn-danger" style="padding:3px 6px; font-size:0.75rem; width:auto;">X</button>
                             </div>
                         `;
-
-                        row.querySelector('.approve-btn').addEventListener('click', () => {
-                            const priceInput = prompt(`أدخل السعر المعتمد النهائي لشراء (${req.itemName}):`);
-                            if (priceInput !== null && priceInput !== "" && !isNaN(priceInput)) {
-                                const finalPrice = parseFloat(priceInput);
-                                
-                                push(ref(db, `rooms/${roomId}/transactions`), {
-                                    name: `شراء طلب: ${req.itemName}`,
-                                    amount: finalPrice,
-                                    category: "تسوق",
-                                    type: "expense",
-                                    author: currentUser,
-                                    date: getCurrentFormattedDate()
-                                });
-
-                                remove(ref(db, `rooms/${roomId}/requests/${key}`));
-                            }
-                        });
-
-                        row.querySelector('.reject-btn').addEventListener('click', () => {
-                            remove(ref(db, `rooms/${roomId}/requests/${key}`));
-                        });
-
                         reqList.appendChild(row);
                     });
+                }
+            });
+
+            // سجل الأرشيف للأشهر السابقة
+            onValue(ref(db, `rooms/${currentRoomId}/archives`), (snapshot) => {
+                const data = snapshot.val();
+                const archivesList = document.getElementById('archivesList');
+                archivesList.innerHTML = '';
+
+                if (data) {
+                    Object.keys(data).forEach(key => {
+                        const arc = data[key];
+                        const div = document.createElement('div');
+                        div.className = "archive-card";
+                        div.innerHTML = `
+                            <div style="display:flex; justify-content:space-between; font-weight:bold; margin-bottom:5px;">
+                                <span>📅 ${arc.monthName}</span>
+                                <button onclick="toggleArchiveDetails('${key}')" class="btn-secondary" style="padding:2px 8px; font-size:0.75rem; width:auto;">👁️ رؤية مشتريات الشهر</button>
+                            </div>
+                            <div style="font-size:0.8rem; color:var(--text-muted); display:flex; gap:10px;">
+                                <span>الميزانية: <strong style="color:var(--success)">${arc.incomeSum.toFixed(2)}</strong></span>
+                                <span>المصروفات: <strong style="color:var(--danger)">${arc.expenseSum.toFixed(2)}</strong></span>
+                                <span>المتبقي: <strong style="color:var(--primary)">${arc.netBalance.toFixed(2)}</strong></span>
+                            </div>
+                            <div id="details-${key}" class="items-list hidden" style="margin-top:8px; border-top:1px dashed var(--border); padding-top:5px;"></div>
+                        `;
+
+                        archivesList.appendChild(div);
+
+                        // تجهيز قائمة تفاصيل مشتريات هذا الشهر المؤرشف
+                        const detailsDiv = div.querySelector(`#details-${key}`);
+                        Object.values(arc.items).forEach(item => {
+                            const itemRow = document.createElement('div');
+                            itemRow.style.fontSize = "0.8rem";
+                            itemRow.style.padding = "4px 0";
+                            itemRow.style.borderBottom = "1px solid var(--border)";
+                            itemRow.innerHTML = `• <strong>${item.name}</strong>: ${item.amount.toFixed(2)} ر.س (${item.author})`;
+                            detailsDiv.appendChild(itemRow);
+                        });
+                    });
                 } else {
-                    reqList.innerHTML = '<p style="color:var(--text-muted); text-align:center;">لا توجد طلبات معلقة في هذه الغرفة.</p>';
+                    archivesList.innerHTML = '<p style="text-align:center; color:var(--text-muted); font-size:0.85rem;">لا توجد أشهر مؤرشفة بعد.</p>';
                 }
             });
         }
 
-        // --- الرسم البياني ---
-        function updateChart(categoryData) {
-            const ctx = document.getElementById('expenseChart').getContext('2d');
-            const labels = Object.keys(categoryData);
-            const dataValues = Object.values(categoryData);
+        // الدوال العالمية
+        window.deleteItem = (path, key) => remove(ref(db, `rooms/${currentRoomId}/${path}/${key}`));
 
-            if (myChart) myChart.destroy();
+        window.approveRequest = (key, itemName) => {
+            const price = prompt(`أدخل السعر المطلوب لشراء (${itemName}):`);
+            if (price && !isNaN(price)) {
+                push(ref(db, `rooms/${currentRoomId}/current_month`), {
+                    name: `شراء طلب: ${itemName}`,
+                    amount: parseFloat(price),
+                    type: "expense",
+                    author: currentUser,
+                    date: getDateFormatted()
+                });
+                remove(ref(db, `rooms/${currentRoomId}/requests/${key}`));
+            }
+        };
 
-            myChart = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: labels.length > 0 ? labels : ['لا يوجد مصاريف'],
-                    datasets: [{
-                        data: dataValues.length > 0 ? dataValues : [1],
-                        backgroundColor: ['#ef4444', '#f59e0b', '#10b981', '#6366f1', '#ec4899', '#8b5cf6']
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { position: 'bottom', labels: { font: { family: 'Tajawal' } } } }
-                }
-            });
-        }
+        window.toggleArchiveDetails = (key) => {
+            const target = document.getElementById(`details-${key}`);
+            target.classList.toggle('hidden');
+        };
     </script>
 </body>
 </html>
