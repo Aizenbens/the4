@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مُدير المصاريف الذكي المتكامل</title>
+    <title>مدير المصاريف والغرف الذكي</title>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -55,9 +55,7 @@
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
         }
 
-        .dashboard {
-            max-width: 900px;
-        }
+        .dashboard { max-width: 900px; }
 
         .header-dash {
             display: flex;
@@ -68,10 +66,7 @@
             gap: 10px;
         }
 
-        .header-controls {
-            display: flex;
-            gap: 10px;
-        }
+        .header-controls { display: flex; gap: 10px; }
 
         button {
             padding: 10px 16px;
@@ -85,9 +80,7 @@
         }
 
         button:hover { background-color: var(--primary-hover); }
-
         .btn-secondary { background-color: #64748b; }
-        .btn-secondary:hover { background-color: #475569; }
         .btn-danger { background-color: var(--danger); }
         .btn-success { background-color: var(--success); }
         .btn-warning { background-color: var(--warning); color: #000; }
@@ -102,6 +95,15 @@
             color: var(--text-main);
             border-radius: 8px;
             outline: none;
+        }
+
+        .room-box {
+            background: rgba(79, 70, 229, 0.08);
+            border: 1px dashed var(--primary);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 20px;
         }
 
         .stats-grid {
@@ -159,68 +161,59 @@
         .item-info { display: flex; flex-direction: column; }
         .item-name { font-weight: bold; }
         .item-date { font-size: 0.75rem; color: var(--text-muted); }
-        .item-category { font-size: 0.8rem; color: var(--primary); }
+        .item-author { font-size: 0.8rem; color: var(--primary); }
 
-        .action-btns { display: flex; gap: 5px; }
-
-        .chart-container {
-            position: relative;
-            margin: 20px 0;
-            max-height: 250px;
-        }
-
-        .switch-link {
-            text-align: center;
-            margin-top: 15px;
-            font-size: 0.9rem;
-            color: var(--text-muted);
-        }
-
-        .switch-link span { color: var(--primary); cursor: pointer; }
+        .chart-container { position: relative; margin: 20px 0; max-height: 250px; }
         .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
     <div id="authCard" class="container">
-        <h2 id="authTitle" style="text-align:center; margin-bottom:20px; color:var(--primary);">تسجيل الدخول</h2>
-        <form id="authForm">
+        <h2 style="text-align:center; margin-bottom:20px; color:var(--primary);">الانضمام والتسجيل</h2>
+        <form id="loginForm">
             <div class="form-group">
-                <label for="email">البريد الإلكتروني</label>
-                <input type="email" id="email" required placeholder="example@mail.com">
+                <label for="username">الاسم الشخصي</label>
+                <input type="text" id="username" required placeholder="ادخل اسمك">
             </div>
             <div class="form-group">
-                <label for="password">كلمة المرور</label>
-                <input type="password" id="password" required placeholder="••••••••">
+                <label for="usercode">الكود الخصوصي (رمز الدخول)</label>
+                <input type="password" id="usercode" required placeholder="أدخل كود سري خاص بك">
             </div>
-            <button type="submit" id="authBtn" style="width:100%">دخول</button>
+            <div class="form-group">
+                <label for="roomIdInput">رمز الغرفة (اختياري للانضمام لغرفة معينة)</label>
+                <input type="text" id="roomIdInput" placeholder="أتركها فارغة لإنشاء غرفة جديدة تلقائياً">
+            </div>
+            <button type="submit" style="width:100%">دخول إلى الغرفة</button>
         </form>
-        <div class="switch-link">
-            <span id="switchAuth">ليس لديك حساب؟ سجل الآن</span><br><br>
-            <span id="resetPasswordBtn" style="font-size:0.8rem;">نسيت كلمة المرور؟</span>
-        </div>
     </div>
 
     <div id="dashboardCard" class="container dashboard hidden">
         <div class="header-dash">
-            <h2>مُدير المصاريف والطلبات</h2>
+            <h2>مدير مصاريف الغرفة</h2>
             <div class="header-controls">
                 <button id="themeToggleBtn" class="btn-secondary">🌙 الوضع الداكن</button>
-                <button id="logoutBtn" class="btn-danger">خروج</button>
+                <button id="logoutBtn" class="btn-danger">تغيير الغرفة/الخروج</button>
             </div>
+        </div>
+
+        <div class="room-box">
+            <h4>رقم الغرفة الحالي: <span id="currentRoomDisplay" style="color:var(--primary);"></span></h4>
+            <p style="font-size:0.85rem; color:var(--text-muted); margin: 5px 0 10px 0;">أرسل هذا الرابط لأي شخص للانضمام لغرفتك مباشرة:</p>
+            <button id="copyLinkBtn" class="btn-warning" style="padding: 5px 12px; font-size:0.85rem;">📋 نسخ رابط الغرفة المباشر</button>
         </div>
 
         <div class="stats-grid">
             <div class="stat-card">
-                <h4>الدخل</h4>
+                <h4>الدخل الإجمالي</h4>
                 <p class="stat-income" id="totalIncome">0.00 ر.س</p>
             </div>
             <div class="stat-card">
-                <h4>المصاريف</h4>
+                <h4>المصاريف الإجمالية</h4>
                 <p class="stat-expense" id="totalExpenses">0.00 ر.س</p>
             </div>
             <div class="stat-card">
-                <h4>الرصيد</h4>
+                <h4>صافي الرصيد</h4>
                 <p class="stat-balance" id="netBalance">0.00 ر.س</p>
             </div>
         </div>
@@ -229,12 +222,12 @@
             <canvas id="expenseChart"></canvas>
         </div>
 
-        <h3 class="section-title">إضافة معاملة مالية جديدة</h3>
+        <h3 class="section-title">إضافة معاملة مالية للغرفة</h3>
         <form id="transactionForm">
             <div class="row">
                 <div class="form-group">
-                    <label for="transName">البيان / الوصف</label>
-                    <input type="text" id="transName" required placeholder="مثال: راتب، بقالة...">
+                    <label for="transName">الوصف / البيان</label>
+                    <input type="text" id="transName" required placeholder="مثال: بقالة، فواتير...">
                 </div>
                 <div class="form-group">
                     <label for="transAmount">المبلغ</label>
@@ -247,9 +240,9 @@
                     <select id="transCategory">
                         <option value="طعام">طعام وبقالة</option>
                         <option value="فواتير">فواتير وخدمات</option>
-                        <option value="تسوق">تسوق شخصي</option>
+                        <option value="تسوق">تسوق</option>
                         <option value="مواصلات">مواصلات</option>
-                        <option value="راتب/دخل">راتب / دخل</option>
+                        <option value="دخل">دخل / تحويل</option>
                         <option value="أخرى">أخرى</option>
                     </select>
                 </div>
@@ -264,165 +257,145 @@
             <button type="submit" style="width: 100%;">إضافة المعاملة</button>
         </form>
 
-        <h3 class="section-title">طلب شراء منتج جديد (بدون تحديد سعر)</h3>
+        <h3 class="section-title">طلب شراء منتج للغرفة (بدون تحديد سعر)</h3>
         <form id="purchaseRequestForm">
-            <div class="row">
-                <div class="form-group">
-                    <label for="reqRequesterName">اسم الطالب</label>
-                    <input type="text" id="reqRequesterName" required placeholder="اسمك">
-                </div>
-                <div class="form-group">
-                    <label for="reqItemName">اسم المنتج / الطلب</label>
-                    <input type="text" id="reqItemName" required placeholder="مثال: شاحن جوال">
-                </div>
+            <div class="form-group">
+                <label for="reqItemName">اسم المنتج / الطلب</label>
+                <input type="text" id="reqItemName" required placeholder="مثال: اغراض العشاء، شاحن...">
             </div>
             <button type="submit" class="btn-warning" style="width: 100%;">إرسال طلب الشراء</button>
         </form>
 
-        <h3 class="section-title">طلبات الشراء بانتظار الموافقة والتمويل</h3>
+        <h3 class="section-title">طلبات الشراء بانتظار الموافقة والتأكيد</h3>
         <div class="items-list" id="requestsList"></div>
 
-        <h3 class="section-title">سجل المعاملات المعتمدة</h3>
+        <h3 class="section-title">سجل معاملات الغرفة المعتمدة</h3>
         <div class="items-list" id="transactionsList"></div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { 
-            getAuth, 
-            createUserWithEmailAndPassword, 
-            signInWithEmailAndPassword, 
-            signOut, 
-            sendPasswordResetEmail,
-            onAuthStateChanged 
-        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { 
             getDatabase, 
             ref, 
             push, 
             onValue, 
-            remove,
-            update 
+            remove 
         } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-        // إعدادات مشروع Firebase الخاص بك
         const firebaseConfig = {
             databaseURL: "https://the-713f0-default-rtdb.firebaseio.com",
             projectId: "the-713f0"
         };
 
         const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
         const db = getDatabase(app);
 
-        let currentUser = null;
-        let isLoginMode = true;
+        let currentUser = "";
+        let currentRoomId = "";
         let myChart = null;
 
-        // --- الوضع الداكن (Dark Mode) ---
-        const themeToggleBtn = document.getElementById('themeToggleBtn');
-        themeToggleBtn.addEventListener('click', () => {
+        // --- فحص إذا تم فتح الصفحة عبر رابط غرفة مباشر ---
+        window.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const roomFromUrl = urlParams.get('room');
+            if (roomFromUrl) {
+                document.getElementById('roomIdInput').value = roomFromUrl;
+            }
+        });
+
+        // --- الوضع الداكن ---
+        document.getElementById('themeToggleBtn').addEventListener('click', () => {
             document.body.classList.toggle('dark-mode');
-            const isDark = document.body.classList.contains('dark-mode');
-            themeToggleBtn.innerText = isDark ? "☀️ الوضع الفاتح" : "🌙 الوضع الداكن";
         });
 
-        // --- التبديل بين الدخول والتسجيل ---
-        document.getElementById('switchAuth').addEventListener('click', () => {
-            isLoginMode = !isLoginMode;
-            document.getElementById('authTitle').innerText = isLoginMode ? "تسجيل الدخول" : "إنشاء حساب جديد";
-            document.getElementById('authBtn').innerText = isLoginMode ? "دخول" : "تسجيل جديد";
-            document.getElementById('switchAuth').innerText = isLoginMode ? "ليس لديك حساب؟ سجل الآن" : "لديك حساب بالفعل؟ دخول";
-        });
+        // --- تسجيل الدخول بالاسم الكود والدخول للغرفة ---
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value.trim();
+            const usercode = document.getElementById('usercode').value.trim();
+            let roomId = document.getElementById('roomIdInput').value.trim();
 
-        // --- نسيت كلمة المرور ---
-        document.getElementById('resetPasswordBtn').addEventListener('click', () => {
-            const email = document.getElementById('email').value;
-            if (!email) {
-                alert("يرجى إدخال البريد الإلكتروني أولاً في الحقل المخصص.");
+            if (!username || !usercode) {
+                alert("يرجى كتابة الاسم والكود الخصوصي");
                 return;
             }
-            sendPasswordResetEmail(auth, email)
-                .then(() => alert("تم إرسال رابط إعادة ضبط كلمة المرور إلى بريدك الإلكتروني."))
-                .catch(err => alert("خطأ: " + err.message));
-        });
 
-        // --- المصادقة ---
-        document.getElementById('authForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
+            currentUser = `${username} (${usercode})`;
 
-            if (isLoginMode) {
-                signInWithEmailAndPassword(auth, email, password).catch(err => alert("خطأ: " + err.message));
-            } else {
-                createUserWithEmailAndPassword(auth, email, password).catch(err => alert("خطأ: " + err.message));
+            // إذا لم يُدخل غرفة، نولّد كود غرفة تلقائي جديد
+            if (!roomId) {
+                roomId = 'room_' + Math.random().toString(36).substr(2, 6);
             }
+
+            currentRoomId = roomId;
+
+            document.getElementById('currentRoomDisplay').innerText = currentRoomId;
+            document.getElementById('authCard').classList.add('hidden');
+            document.getElementById('dashboardCard').classList.remove('hidden');
+
+            // تحديث رابط الصفحة في المتصفح ليحتوي رمز الغرفة
+            const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?room=' + currentRoomId;
+            window.history.pushState({path: newUrl}, '', newUrl);
+
+            loadRoomData(currentRoomId);
         });
 
-        document.getElementById('logoutBtn').addEventListener('click', () => signOut(auth));
-
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                currentUser = user;
-                document.getElementById('authCard').classList.add('hidden');
-                document.getElementById('dashboardCard').classList.remove('hidden');
-                loadData(user.uid);
-            } else {
-                currentUser = null;
-                document.getElementById('dashboardCard').classList.add('hidden');
-                document.getElementById('authCard').classList.remove('hidden');
-            }
+        // --- نسخ رابط الغرفة ---
+        document.getElementById('copyLinkBtn').addEventListener('click', () => {
+            navigator.clipboard.writeText(window.location.href);
+            alert("تم نسخ رابط الغرفة المباشر بنجاح! شاركه مع من تريد للانضمام معك.");
         });
 
-        // --- دالة الحصول على اليوم والتاريخ بالحجم العربي ---
+        // --- الخروج ---
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            location.href = window.location.pathname; // إعادة التنشيط وإزالة معامل الغرفة من الرابط
+        });
+
         function getCurrentFormattedDate() {
             const now = new Date();
-            const options = { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
-            return now.toLocaleDateString('ar-SA', options);
+            return now.toLocaleDateString('ar-SA', { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
         }
 
-        // --- إضافة معاملة مالية مباشرة ---
+        // --- إضافة معاملة مالية للغرفة ---
         document.getElementById('transactionForm').addEventListener('submit', (e) => {
             e.preventDefault();
-            if (!currentUser) return;
-
             const name = document.getElementById('transName').value;
             const amount = parseFloat(document.getElementById('transAmount').value);
             const category = document.getElementById('transCategory').value;
             const type = document.getElementById('transType').value;
-            const dateStr = getCurrentFormattedDate();
 
-            push(ref(db, `users/${currentUser.uid}/transactions`), {
-                name, amount, category, type, date: dateStr
+            push(ref(db, `rooms/${currentRoomId}/transactions`), {
+                name,
+                amount,
+                category,
+                type,
+                author: currentUser,
+                date: getCurrentFormattedDate()
             });
 
             document.getElementById('transactionForm').reset();
         });
 
-        // --- 1. تقديم طلب شراء جديد ---
+        // --- تقديم طلب شراء للغرفة ---
         document.getElementById('purchaseRequestForm').addEventListener('submit', (e) => {
             e.preventDefault();
-            if (!currentUser) return;
-
-            const requester = document.getElementById('reqRequesterName').value;
             const itemName = document.getElementById('reqItemName').value;
-            const dateStr = getCurrentFormattedDate();
 
-            push(ref(db, `users/${currentUser.uid}/requests`), {
-                requester,
+            push(ref(db, `rooms/${currentRoomId}/requests`), {
                 itemName,
+                requester: currentUser,
                 status: "pending",
-                date: dateStr
+                date: getCurrentFormattedDate()
             });
 
             document.getElementById('purchaseRequestForm').reset();
         });
 
-        // --- تحميل البيانات وتحديث الواجهة والرسوم البيانية ---
-        function loadData(userId) {
-            // أ) جلب المعاملات المالية الرسمية
-            onValue(ref(db, `users/${userId}/transactions`), (snapshot) => {
+        // --- تحميل بيانات الغرفة المباشرة ---
+        function loadRoomData(roomId) {
+            // جلب المعاملات المالية للغرفة
+            onValue(ref(db, `rooms/${roomId}/transactions`), (snapshot) => {
                 const data = snapshot.val();
                 const list = document.getElementById('transactionsList');
                 list.innerHTML = '';
@@ -446,8 +419,8 @@
                         row.innerHTML = `
                             <div class="item-info">
                                 <span class="item-name">${item.name}</span>
-                                <span class="item-category">[${item.category || 'عام'}]</span>
-                                <span class="item-date">🗓️ ${item.date || 'تاريخ غير مسجل'}</span>
+                                <span class="item-author">بواسطة: ${item.author || 'مجهول'} [${item.category || 'عام'}]</span>
+                                <span class="item-date">🗓️ ${item.date || ''}</span>
                             </div>
                             <div>
                                 <span style="font-weight:bold; margin-left:10px;">${item.type === 'income' ? '+' : '-'}${item.amount.toFixed(2)} ر.س</span>
@@ -456,7 +429,7 @@
                         `;
 
                         row.querySelector('button').addEventListener('click', () => {
-                            remove(ref(db, `users/${userId}/transactions/${key}`));
+                            remove(ref(db, `rooms/${roomId}/transactions/${key}`));
                         });
 
                         list.appendChild(row);
@@ -470,8 +443,8 @@
                 updateChart(categoryTotals);
             });
 
-            // ب) جلب طلبات الشراء المعلقة
-            onValue(ref(db, `users/${userId}/requests`), (snapshot) => {
+            // جلب طلبات الشراء المعلقة للغرفة
+            onValue(ref(db, `rooms/${roomId}/requests`), (snapshot) => {
                 const data = snapshot.val();
                 const reqList = document.getElementById('requestsList');
                 reqList.innerHTML = '';
@@ -479,58 +452,51 @@
                 if (data) {
                     Object.keys(data).forEach(key => {
                         const req = data[key];
-                        if (req.status === "pending") {
-                            const row = document.createElement('div');
-                            row.className = "item-row pending-border";
-                            row.innerHTML = `
-                                <div class="item-info">
-                                    <span class="item-name">🛍️ ${req.itemName}</span>
-                                    <span class="item-category">المطلوب بواسطة: ${req.requester}</span>
-                                    <span class="item-date">🗓️ ${req.date}</span>
-                                </div>
-                                <div class="action-btns">
-                                    <button class="btn-success approve-btn">موافقة وتحديد السعر</button>
-                                    <button class="btn-danger reject-btn">إلغاء</button>
-                                </div>
-                            `;
+                        const row = document.createElement('div');
+                        row.className = "item-row pending-border";
+                        row.innerHTML = `
+                            <div class="item-info">
+                                <span class="item-name">🛍️ ${req.itemName}</span>
+                                <span class="item-author">صاحب الطلب: ${req.requester}</span>
+                                <span class="item-date">🗓️ ${req.date}</span>
+                            </div>
+                            <div style="display:flex; gap:5px;">
+                                <button class="btn-success approve-btn">تأكيد ورصد السعر</button>
+                                <button class="btn-danger reject-btn">حذف</button>
+                            </div>
+                        `;
 
-                            // عند ضغط الموافق: إظهار النافذة لإدخال السعر والتأكيد
-                            row.querySelector('.approve-btn').addEventListener('click', () => {
-                                const priceInput = prompt(`أدخل السعر المعتمد النهائي لشراء (${req.itemName}):`);
-                                if (priceInput !== null && priceInput !== "" && !isNaN(priceInput)) {
-                                    const finalPrice = parseFloat(priceInput);
-                                    
-                                    // 1. تحويل الطلب إلى مصروف مالي مسجل تلقائياً
-                                    push(ref(db, `users/${userId}/transactions`), {
-                                        name: `شراء طلب: ${req.itemName} (طلب ${req.requester})`,
-                                        amount: finalPrice,
-                                        category: "تسوق",
-                                        type: "expense",
-                                        date: getCurrentFormattedDate()
-                                    });
+                        row.querySelector('.approve-btn').addEventListener('click', () => {
+                            const priceInput = prompt(`أدخل السعر المعتمد النهائي لشراء (${req.itemName}):`);
+                            if (priceInput !== null && priceInput !== "" && !isNaN(priceInput)) {
+                                const finalPrice = parseFloat(priceInput);
+                                
+                                push(ref(db, `rooms/${roomId}/transactions`), {
+                                    name: `شراء طلب: ${req.itemName}`,
+                                    amount: finalPrice,
+                                    category: "تسوق",
+                                    type: "expense",
+                                    author: currentUser,
+                                    date: getCurrentFormattedDate()
+                                });
 
-                                    // 2. إزالة الطلب المعلق من قائمة الطلبات
-                                    remove(ref(db, `users/${userId}/requests/${key}`));
-                                    alert("تمت الموافقة وتأكيد شراء المنتج وإضافته للمصاريف بنجاح!");
-                                } else if (priceInput !== null) {
-                                    alert("يرجى كتابة رقم صحيح للسعر.");
-                                }
-                            });
+                                remove(ref(db, `rooms/${roomId}/requests/${key}`));
+                            }
+                        });
 
-                            row.querySelector('.reject-btn').addEventListener('click', () => {
-                                remove(ref(db, `users/${userId}/requests/${key}`));
-                            });
+                        row.querySelector('.reject-btn').addEventListener('click', () => {
+                            remove(ref(db, `rooms/${roomId}/requests/${key}`));
+                        });
 
-                            reqList.appendChild(row);
-                        }
+                        reqList.appendChild(row);
                     });
                 } else {
-                    reqList.innerHTML = '<p style="color:var(--text-muted); text-align:center;">لا توجد طلبات معلقة حالياً.</p>';
+                    reqList.innerHTML = '<p style="color:var(--text-muted); text-align:center;">لا توجد طلبات معلقة في هذه الغرفة.</p>';
                 }
             });
         }
 
-        // --- تحديث الرسم البياني ---
+        // --- الرسم البياني ---
         function updateChart(categoryData) {
             const ctx = document.getElementById('expenseChart').getContext('2d');
             const labels = Object.keys(categoryData);
@@ -550,9 +516,7 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'bottom', labels: { font: { family: 'Tajawal' } } }
-                    }
+                    plugins: { legend: { position: 'bottom', labels: { font: { family: 'Tajawal' } } } }
                 }
             });
         }
